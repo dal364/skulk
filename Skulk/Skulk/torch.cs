@@ -64,7 +64,7 @@ namespace Skulk
             this.source.Y = this.frameStartY + this.frameSkipY * this.frameCount;
             Vector2 origin = new Vector2(this.source.Width / 2, this.source.Height / 2);
             //spritebatch.Draw(texture,this.destination,Color.AliceBlue);
-            spritebatch.Draw(texture, this.destination, this.source, Color.White, 0, origin, SpriteEffects.None, 0);
+            spritebatch.Draw(texture, this.destination, this.source, Color.White, 0, origin, SpriteEffects.None, 1);
         }
 
         public void UpdateAnimation()

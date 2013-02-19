@@ -85,7 +85,37 @@ namespace Skulk
             if (ks.IsKeyDown(Keys.Right))
             {
                 this.velocity.X += 3;
-                this.rotation = (float)(3 * Math.PI / 2);
+                this.rotation = (float)(-Math.PI / 2);
+                this.animationCount += 1;
+            }
+
+            if (ks.IsKeyDown(Keys.Right) && ks.IsKeyDown(Keys.Up))
+            {
+                this.velocity.X = 3;
+                this.rotation = (float)(-3*Math.PI / 4);
+                this.animationCount += 1;
+            }
+
+            if (ks.IsKeyDown(Keys.Right) && ks.IsKeyDown(Keys.Down))
+            {
+                this.velocity.X = 3;
+                this.rotation = (float)(- Math.PI / 4);
+                this.animationCount += 1;
+            }
+
+            if (ks.IsKeyDown(Keys.Left) && ks.IsKeyDown(Keys.Down))
+            {
+                this.velocity.X = -3;
+                this.velocity.Y = 3;
+                this.rotation = (float)(Math.PI / 4);
+                this.animationCount += 1;
+            }
+
+            if (ks.IsKeyDown(Keys.Left) && ks.IsKeyDown(Keys.Up))
+            {
+                this.velocity.X = -3;
+                this.velocity.Y = -3;
+                this.rotation = (float)(3 * Math.PI / 4);
                 this.animationCount += 1;
             }
 
@@ -106,7 +136,7 @@ namespace Skulk
             this.source.Y = this.frameStartY + this.frameSkipY * this.frameCount;
             Vector2 origin = new Vector2(this.source.Width / 2, this.source.Height / 2);
             //spritebatch.Draw(texture,this.destination,Color.AliceBlue);
-            spritebatch.Draw(texture, this.destination, this.source, Color.White, this.rotation, origin, SpriteEffects.None, 0);
+            spritebatch.Draw(texture, this.destination, this.source, Color.White, this.rotation, origin, SpriteEffects.None, 9/10);
         }
 
         public void UpdateAnimation()

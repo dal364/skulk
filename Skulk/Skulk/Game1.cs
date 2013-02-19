@@ -50,7 +50,7 @@ namespace Skulk
                 torch[i].initialize(torchStart, torchTexture);
             }
 
-            Vector2 start = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            Vector2 start = new Vector2(800, 500);
             Texture2D texture = Content.Load<Texture2D>("sprite");
             player = new Player(this);
             player.initialize(start, 0, texture);
@@ -102,7 +102,7 @@ namespace Skulk
         protected override void Draw(GameTime gameTime)
         {
             graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin(SpriteSortMode.Texture,
+            spriteBatch.Begin(SpriteSortMode.Deferred,
             null, null, null, null, null,
             Matrix.CreateTranslation(GraphicsDevice.Viewport.Width / 2 - player.position.X + 140, GraphicsDevice.Viewport.Height / 2 - player.position.Y +120, 0));
 
@@ -110,7 +110,6 @@ namespace Skulk
             
             spriteBatch.Draw(backgroundTexture, backgroundPosition, Color.White);
             player.draw(this.spriteBatch);
-
             for (int i = 0; i < 10; i++)
                 torch[i].draw(this.spriteBatch);
             //TODO: Add your drawing code here
