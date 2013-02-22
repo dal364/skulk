@@ -50,7 +50,10 @@ namespace Skulk
 		public void draw (SpriteBatch spriteBatch, int x, int y, int firstX, int firstY, int offsetX, int offsetY)
 		{
 			this.source.Y = this.frameStartY + this.frameSkipY * this.frameCount;
+
+            //go through each cell containing objects
 			foreach (string objectID in map.mapCell[x + firstX,y + firstY].Objects) {
+                // draw the specific object
 				if(objectID.Equals(this.objectID)){
 				spriteBatch.Draw(
 					texture,
