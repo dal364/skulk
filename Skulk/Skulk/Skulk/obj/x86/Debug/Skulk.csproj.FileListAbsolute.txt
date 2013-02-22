@@ -7,3 +7,5 @@ c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\obj
 c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\background.xnb
 c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\sprite.xnb
 c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\torch.xnb
+C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\guard.xnb
+C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\tileset.xnb

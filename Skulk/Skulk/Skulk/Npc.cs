@@ -4,15 +4,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Skulk
 {
-	public class torch : Object
+	public class Npc: Object
 	{
 
 		int animationCount; // How many ticks since the last frame change.
-        int animationMax = 10; // How many ticks to change frame after.
+        //int animationMax = 10; // How many ticks to change frame after.
 
-		public torch (Game game)
+	
+
+		public Npc(Game game)
 			:base(game)
 		{
+			base.frameHeight = 128 - 33;
+			base.frameWidth = 128;
+			base.frameStartY = 33;
 		}
 
 		public override void Update (GameTime gameTime)
@@ -25,14 +30,7 @@ namespace Skulk
 		public void UpdateAnimation ()
 		{
 	
-			if (this.animationCount > this.animationMax) {
-				this.animationCount = 0;
-				this.frameCount += 1;
-			}
-
-			if (this.frameCount > 2) {
-				this.frameCount = 0;
-			} 
+		//To do
 
         }
 
@@ -40,7 +38,3 @@ namespace Skulk
 
 	}
 }
-
-	
-
-
