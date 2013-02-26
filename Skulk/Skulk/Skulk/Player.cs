@@ -75,7 +75,7 @@ namespace Skulk
             KeyboardState ks = Keyboard.GetState();
             if (isInCollision)
             {
-                this.collide(ks);
+                this.collide();
             }
             if (ks.IsKeyDown(Keys.Left))
             {
@@ -152,27 +152,27 @@ namespace Skulk
             this.tileX = newX;
             this.tileY = newY;
             this.map.mapCell[newX, newY].AddObject(this.objectID);
-            Console.WriteLine(tileX+" "+ tileY);
+            
             
          }
 
         public void isColliding(Object Object)
         {
+            
             if ((Object.tileX >= this.tileX - 1 && Object.tileX <= this.tileX + 1) &&
                 (Object.tileY >= this.tileY - 1 && Object.tileY <= this.tileY + 1))
             {
-                Console.WriteLine(this.destination.Intersects(Object.destination));
+                if (this.destination.Y >= Object.destination.Y - 1 && this.destination.Y <= Object.destination.Y + Object.destination.Height)
+                    Console.WriteLine("true!");
+
                
-                isInCollision = this.destination.Intersects(Object.destination );
             }
            
         }
 
-        public void collide(KeyboardState ks)
+        public void collide()
         {
-            acceleration = 0;
-            
-            isInCollision = false;
+           //to do
             
         }
 
