@@ -10,9 +10,12 @@ namespace Skulk
 		protected int originalOffsetY;
 		public Texture2D texture;
 		protected Rectangle source;
+        public Rectangle destination;
 		protected string objectID;
 
 		protected TileMap map;
+        public int tileX;
+        public int tileY;
 
 		protected int frameCount = 0; // Which frame we are.  Values = {0, 1, 2}
         protected int frameSkipY = 32; // How much to move the frame in X when we increment a frame--X distance between top left corners.
@@ -35,6 +38,8 @@ namespace Skulk
 			this.texture = texture;
 			this.map = map;
 			this.objectID = objectID;
+            this.tileX = x;
+            this.tileY = y;
 
 
 			map.mapCell[x,y].AddObject(objectID);
@@ -55,11 +60,12 @@ namespace Skulk
 			foreach (string objectID in map.mapCell[x + firstX,y + firstY].Objects) {
                 // draw the specific object
 				if(objectID.Equals(this.objectID)){
+                    destination = new Rectangle(
+                     (x * 64) + this.originalOffsetX - offsetX,
+                     (y * 64) + this.originalOffsetY - offsetY, this.frameWidth, this.frameHeight);
 				spriteBatch.Draw(
 					texture,
-					new Rectangle(
-					(x * 64) + this.originalOffsetX - offsetX,
-					(y * 64) + this.originalOffsetY - offsetY, this.frameWidth, this.frameHeight),
+					destination,
         			source,
 					Color.White);
 				}

@@ -7,8 +7,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\background.xnb</Output>
-      <Time>2013-02-06T11:51:20.0583085-06:00</Time>
+      <Output>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\background.xnb</Output>
+      <Time>2013-02-26T12:00:17.564073-06:00</Time>
     </Item>
     <Item>
       <Source>sprite.png</Source>
@@ -16,8 +16,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\sprite.xnb</Output>
-      <Time>2013-02-06T11:51:20.0863101-06:00</Time>
+      <Output>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\sprite.xnb</Output>
+      <Time>2013-02-26T12:00:18.262573-06:00</Time>
     </Item>
     <Item>
       <Source>torch.png</Source>
@@ -25,8 +25,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\torch.xnb</Output>
-      <Time>2013-02-21T22:04:17.5595399-06:00</Time>
+      <Output>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\torch.xnb</Output>
+      <Time>2013-02-26T12:00:18.267504-06:00</Time>
     </Item>
     <Item>
       <Source>guard.png</Source>
@@ -34,8 +34,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\guard.xnb</Output>
-      <Time>2013-02-21T22:04:15.7534366-06:00</Time>
+      <Output>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\guard.xnb</Output>
+      <Time>2013-02-26T12:00:27.336127-06:00</Time>
     </Item>
     <Item>
       <Source>tileset.png</Source>
@@ -43,8 +43,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\tileset.xnb</Output>
-      <Time>2013-02-22T04:17:49.2753932-06:00</Time>
+      <Output>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\tileset.xnb</Output>
+      <Time>2013-02-26T12:00:27.374393-06:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
@@ -53,10 +53,10 @@
       <TargetProfile>Reach</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\SkulkContent\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\SkulkContent\</RootDirectory>
+      <LoggerRootDirectory>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\</LoggerRootDirectory>
+      <IntermediateDirectory>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
@@ -85,7 +85,7 @@
       </Assembly>
       <Assembly>
         <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
-        <Value>2013-01-30T08:44:58.6565079-06:00</Value>
+        <Value>2012-11-28T15:09:00-06:00</Value>
       </Assembly>
     </Assemblies>
   </Asset>

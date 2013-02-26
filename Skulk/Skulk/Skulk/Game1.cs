@@ -26,8 +26,7 @@ namespace Skulk
 		int squaresAcross;
 		int squaresDown;
 
-		//Camera
-		Camera camera;
+		
 
 
 		public Game1 ()
@@ -49,7 +48,7 @@ namespace Skulk
 			squaresAcross = GraphicsDevice.Viewport.Width / 64 + 2;
 		    squaresDown = GraphicsDevice.Viewport.Height / 64 + 2;
 
-			camera = new Camera(this);
+			
 			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
 
 			Texture2D guardTexture = Content.Load<Texture2D> ("guard");
@@ -59,9 +58,9 @@ namespace Skulk
 			Vector2 start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			Texture2D texture = Content.Load<Texture2D>("sprite");
 			player = new Player(this);
-			player.initialize(start, 0, texture);
+            player.initialize(start, 0, texture, 10, 10, "player", myMap);
 			testObject = new torch(this);
-			testObject.initialize(myMap, 1, 1, 0, 0, torchTexture, "torch");
+			testObject.initialize(myMap, 9, 7, 0, 0, torchTexture, "torch");
 			base.Initialize ();
 				
 		}
@@ -94,9 +93,10 @@ namespace Skulk
 
 			if(ks.IsKeyDown(Keys.Escape))
 				this.Exit();
-
-			camera.Update(myMap,squaresAcross,squaresDown,gameTime);
-			player.Update(gameTime);
+           
+			player.Update(myMap,squaresAcross,squaresDown,gameTime);
+            player.isColliding(testObject);
+           
 			testObject.Update(gameTime);
 			testGuard.Update(gameTime);
 			// TODO: Add your update logic here			
@@ -112,11 +112,11 @@ namespace Skulk
 			graphics.GraphicsDevice.Clear (Color.Black);
 			spriteBatch.Begin ();
 
-			Vector2 firstSquare = new Vector2 (camera.Location.X / 64, camera.Location.Y / 64);
+			Vector2 firstSquare = new Vector2 (player.Location.X / 64, player.Location.Y / 64);
 			int firstX = (int)firstSquare.X;
 			int firstY = (int)firstSquare.Y;
 
-			Vector2 squareOffset = new Vector2 (camera.Location.X % 64, camera.Location.Y % 64);
+			Vector2 squareOffset = new Vector2 (player.Location.X % 64, player.Location.Y % 64);
 			int offsetX = (int)squareOffset.X;
 			int offsetY = (int)squareOffset.Y;
 	

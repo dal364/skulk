@@ -32,6 +32,11 @@ namespace Skulk
 			Objects.Add(objectID);
 		}
 
+        public void RemoveObject(string objectID)
+        {
+            Objects.Remove(objectID);
+        }
+
 	}
 }
 

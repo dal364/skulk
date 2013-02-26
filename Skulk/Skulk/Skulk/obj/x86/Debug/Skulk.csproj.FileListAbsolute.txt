@@ -9,3 +9,14 @@ c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin
 c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\torch.xnb
 C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\guard.xnb
 C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\tileset.xnb
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\background.xnb
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\sprite.xnb
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\torch.xnb
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\guard.xnb
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\tileset.xnb
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Skulk.exe
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Skulk.pdb
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\obj\x86\Debug\ResolveAssemblyReference.cache
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\obj\x86\Debug\Skulk.exe
+\\csfiles\dwb131\Documents\Visual Studio 2010\Projects\skulk\Skulk\Skulk\Skulk\obj\x86\Debug\Skulk.pdb
