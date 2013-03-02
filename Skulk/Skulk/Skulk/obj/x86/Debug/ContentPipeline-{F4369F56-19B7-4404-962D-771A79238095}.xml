@@ -26,7 +26,25 @@
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
       <Output>c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\torch.xnb</Output>
-      <Time>2013-02-06T11:51:20.102311-06:00</Time>
+      <Time>2013-02-21T22:04:17.5595399-06:00</Time>
+    </Item>
+    <Item>
+      <Source>guard.png</Source>
+      <Name>guard</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\guard.xnb</Output>
+      <Time>2013-02-21T22:04:15.7534366-06:00</Time>
+    </Item>
+    <Item>
+      <Source>tileset.png</Source>
+      <Name>tileset</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\tileset.xnb</Output>
+      <Time>2013-02-22T04:17:49.2753932-06:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
@@ -35,10 +53,10 @@
       <TargetProfile>Reach</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\SkulkContent\</RootDirectory>
-      <LoggerRootDirectory>c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\</LoggerRootDirectory>
-      <IntermediateDirectory>c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\SkulkContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>

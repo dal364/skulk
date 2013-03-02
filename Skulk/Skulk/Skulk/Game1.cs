@@ -9,109 +9,153 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Skulk
 {
-    /// <summary>
-    /// This is the main type for your game
-    /// </summary>
-    public class Game1 : Game
-    {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+	/// <summary>
+	/// This is the main type for your game
+	/// </summary>
+	public class Game1 : Game
+	{
+		GraphicsDeviceManager graphics;
+		SpriteBatch spriteBatch;
 
-        Player player;
-        torch[] torch;
-        Texture2D backgroundTexture;
-        Vector2 backgroundPosition;
+		Player player;
+		torch testObject;
+		Npc testGuard;
 
-        public Game1()
-        {
-            graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
-            graphics.IsFullScreen = false;
-        }
+		//Tile Map stuff
+		TileMap myMap = new TileMap();
+		int squaresAcross;
+		int squaresDown;
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content. Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
-        protected override void Initialize()
-        {
-            backgroundPosition = new Vector2(0, 0);
-            backgroundTexture = Content.Load<Texture2D>("background");
-            //Rectangle background = new Rectangle (0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+		//Camera
+		Camera camera;
 
-            Texture2D torchTexture = Content.Load<Texture2D>("torch");
-            torch = new torch[20];
-            for (int i = 0; i < 10; i++)
-            {
-                Vector2 torchStart = new Vector2(100, 100 + 50 * i);
-                torch[i] = new torch(this);
-                torch[i].initialize(torchStart, torchTexture);
-            }
 
-            Vector2 start = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            Texture2D texture = Content.Load<Texture2D>("sprite");
-            player = new Player(this);
-            player.initialize(start, 0, texture);
-            base.Initialize();
+		public Game1 ()
+		{
+			graphics = new GraphicsDeviceManager (this);
+			Content.RootDirectory = "Content";	            
+			graphics.IsFullScreen = false;
 
-        }
+		}
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
-        protected override void LoadContent()
-        {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+		/// <summary>
+		/// Allows the game to perform any initialization it needs to before starting to run.
+		/// This is where it can query for any required services and load any non-graphic
+		/// related content.  Calling base.Initialize will enumerate through any components
+		/// and initialize them as well.
+		/// </summary>
+		protected override void Initialize ()
+		{                                                   // +2 to compensate for tiles off screen
+			squaresAcross = GraphicsDevice.Viewport.Width / 64 + 2;
+		    squaresDown = GraphicsDevice.Viewport.Height / 64 + 2;
 
-            //TODO: use this.Content to load your game content here
-        }
+			camera = new Camera(this);
+			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
-        {
-            KeyboardState ks = Keyboard.GetState();
-            // For Mobile devices, this logic will close the Game when the Back button is pressed
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-            {
-                Exit();
-            }
+			Texture2D guardTexture = Content.Load<Texture2D> ("guard");
+			testGuard = new Npc(this);
+            Point[] testPatrolPath = { new Point(10, 6),new Point(10,10), new Point(15,10), new Point(15,6),new Point(15,10),new Point(10,10)};
+			testGuard.initialize(myMap,10,6,0,0,guardTexture,"guard",testPatrolPath);
 
-            if (ks.IsKeyDown(Keys.Escape))
-                this.Exit();
+			Vector2 start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
+			Texture2D texture = Content.Load<Texture2D>("sprite");
+			player = new Player(this);
+			player.initialize(start, 0, texture);
+			testObject = new torch(this);
+			testObject.initialize(myMap, 1, 1, 0, 0, torchTexture, "torch");
+			base.Initialize ();
+				
+		}
 
-            for (int i = 0; i < 10; i++)
-                torch[i].Update(gameTime);
+		/// <summary>
+		/// LoadContent will be called once per game and is the place to load
+		/// all of your content.
+		/// </summary>
+		protected override void LoadContent ()
+		{
+			// Create a new SpriteBatch, which can be used to draw textures.
+			spriteBatch = new SpriteBatch (GraphicsDevice);
 
-            player.Update(gameTime);
-            // TODO: Add your update logic here
-            base.Update(gameTime);
-        }
+			//TODO: use this.Content to load your game content here 
+			Tile.TileSetTexture = Content.Load<Texture2D>("tileset");
+		}
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
-        {
-            graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
+		/// <summary>
+		/// Allows the game to run logic such as updating the world,
+		/// checking for collisions, gathering input, and playing audio.
+		/// </summary>
+		/// <param name="gameTime">Provides a snapshot of timing values.</param>
+		protected override void Update (GameTime gameTime)
+		{
+			KeyboardState ks = Keyboard.GetState();
+			// For Mobile devices, this logic will close the Game when the Back button is pressed
+			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
+				Exit ();
+			}
 
-            spriteBatch.Draw(backgroundTexture, backgroundPosition, Color.White);
-            player.draw(this.spriteBatch);
+			if(ks.IsKeyDown(Keys.Escape))
+				this.Exit();
 
-            for (int i = 0; i < 10; i++)
-                torch[i].draw(this.spriteBatch);
-            //TODO: Add your drawing code here
-            spriteBatch.End();
-            base.Draw(gameTime);
-        }
-    }
+			camera.Update(myMap,squaresAcross,squaresDown,gameTime);
+			player.Update(gameTime);
+			testObject.Update(gameTime);
+			testGuard.Update(gameTime);
+			// TODO: Add your update logic here			
+			base.Update (gameTime);
+		}
+
+		/// <summary>
+		/// This is called when the game should draw itself.
+		/// </summary>
+		/// <param name="gameTime">Provides a snapshot of timing values.</param>
+		protected override void Draw (GameTime gameTime)
+		{
+			graphics.GraphicsDevice.Clear (Color.Black);
+			spriteBatch.Begin ();
+
+			Vector2 firstSquare = new Vector2 (camera.Location.X / 64, camera.Location.Y / 64);
+			int firstX = (int)firstSquare.X;
+			int firstY = (int)firstSquare.Y;
+
+			Vector2 squareOffset = new Vector2 (camera.Location.X % 64, camera.Location.Y % 64);
+			int offsetX = (int)squareOffset.X;
+			int offsetY = (int)squareOffset.Y;
+	
+			//draw tile map
+			for (int y = 0; y < squaresDown; y++) {
+           
+				for (int x = 0; x < squaresAcross; x++) {
+					foreach (int tileID in myMap.mapCell[x + firstX,y + firstY].BaseTiles) {
+						spriteBatch.Draw (
+        				Tile.TileSetTexture,
+        				new Rectangle (
+            				(x * 64) - offsetX, (y * 64) - offsetY, 64, 64),
+        					Tile.GetSourceRectangle (tileID),
+        					Color.White);
+					}
+				
+
+				}
+			}
+
+			//draw objects on top of tile map
+			for (int y = 0; y < squaresDown; y++) {
+           
+				for (int x = 0; x < squaresAcross; x++) {
+					testObject.draw(spriteBatch, x, y, firstX, firstY, offsetX, offsetY);
+					testGuard.draw(spriteBatch, x, y, firstX, firstY, offsetX, offsetY);
+				}
+			}
+
+			//draw player
+			player.draw (this.spriteBatch);
+
+
+			spriteBatch.End ();
+			base.Draw (gameTime);
+		}
+		
+	
+	}
 }
+

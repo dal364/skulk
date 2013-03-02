@@ -7,3 +7,16 @@ c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\obj
 c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\background.xnb
 c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\sprite.xnb
 c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\torch.xnb
+C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\guard.xnb
+C:\Users\Dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\Skulk\bin\x86\Debug\Content\tileset.xnb
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\bin\x86\Debug\Skulk.exe
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\bin\x86\Debug\Content\background.xnb
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\bin\x86\Debug\Content\sprite.xnb
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\bin\x86\Debug\Content\torch.xnb
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\bin\x86\Debug\Content\guard.xnb
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\bin\x86\Debug\Content\tileset.xnb
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\obj\x86\Debug\Skulk.exe
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\obj\x86\Debug\Skulk.pdb
+C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\Skulk\bin\x86\Debug\Skulk.pdb
