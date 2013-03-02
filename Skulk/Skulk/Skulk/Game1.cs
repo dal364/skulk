@@ -26,7 +26,8 @@ namespace Skulk
 		int squaresAcross;
 		int squaresDown;
 
-		
+		//Camera
+		Camera camera;
 
 
 		public Game1 ()
@@ -48,19 +49,20 @@ namespace Skulk
 			squaresAcross = GraphicsDevice.Viewport.Width / 64 + 2;
 		    squaresDown = GraphicsDevice.Viewport.Height / 64 + 2;
 
-			
+			camera = new Camera(this);
 			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
 
 			Texture2D guardTexture = Content.Load<Texture2D> ("guard");
 			testGuard = new Npc(this);
-			testGuard.initialize(myMap,10,6,0,0,guardTexture,"guard");
+            Point[] testPatrolPath = { new Point(10, 6),new Point(10,10), new Point(15,10), new Point(15,6),new Point(15,10),new Point(10,10)};
+			testGuard.initialize(myMap,10,6,0,0,guardTexture,"guard",testPatrolPath);
 
 			Vector2 start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			Texture2D texture = Content.Load<Texture2D>("sprite");
 			player = new Player(this);
-            player.initialize(start, 0, texture, 10, 10, "player", myMap);
+			player.initialize(start, 0, texture);
 			testObject = new torch(this);
-			testObject.initialize(myMap, 9, 7, 0, 0, torchTexture, "torch");
+			testObject.initialize(myMap, 1, 1, 0, 0, torchTexture, "torch");
 			base.Initialize ();
 				
 		}
@@ -93,10 +95,9 @@ namespace Skulk
 
 			if(ks.IsKeyDown(Keys.Escape))
 				this.Exit();
-           
-			player.Update(myMap,squaresAcross,squaresDown,gameTime);
-            player.isColliding(testObject);
-           
+
+			camera.Update(myMap,squaresAcross,squaresDown,gameTime);
+			player.Update(gameTime);
 			testObject.Update(gameTime);
 			testGuard.Update(gameTime);
 			// TODO: Add your update logic here			
@@ -112,11 +113,11 @@ namespace Skulk
 			graphics.GraphicsDevice.Clear (Color.Black);
 			spriteBatch.Begin ();
 
-			Vector2 firstSquare = new Vector2 (player.Location.X / 64, player.Location.Y / 64);
+			Vector2 firstSquare = new Vector2 (camera.Location.X / 64, camera.Location.Y / 64);
 			int firstX = (int)firstSquare.X;
 			int firstY = (int)firstSquare.Y;
 
-			Vector2 squareOffset = new Vector2 (player.Location.X % 64, player.Location.Y % 64);
+			Vector2 squareOffset = new Vector2 (camera.Location.X % 64, camera.Location.Y % 64);
 			int offsetX = (int)squareOffset.X;
 			int offsetY = (int)squareOffset.Y;
 	

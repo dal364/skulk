@@ -7,16 +7,9 @@ namespace Skulk
 {
 	public class Player : GameComponent
 	{
-        public Vector2 Location = Vector2.Zero;
-        float acceleration = 2;
-	
+		Vector2 velocity;
 		public Texture2D texture;
-        int tileX;
-        int tileY;
-        protected string objectID;
 
-        protected TileMap map;
-      
 		Rectangle destination;
 		Rectangle source;
 
@@ -25,32 +18,24 @@ namespace Skulk
 		int frameCount = 0; // Which frame we are.  Values = {0, 1, 2}
         int frameSkipY = 128; // How much to move the frame in X when we increment a frame--X distance between top left corners.
         int frameStartX = 0; // X of top left corner of frame 0. 
-        int frameStartY = 21; // Y of top left corner of frame 0.
+        int frameStartY = 0; // Y of top left corner of frame 0.
         int frameWidth = 128; // X of right minus X of left. 
-        int frameHeight = 128 - 21; // Y of bottom minus Y of top.
+        int frameHeight = 128; // Y of bottom minus Y of top.
 
-        
+
 		int animationCount; // How many ticks since the last frame change.
         int animationMax = 10; // How many ticks to change frame after. 
-
-        bool isInCollision; 
 
 		public Player (Game game)
 			:base(game)
 		{
 		}
 
-		public void initialize (Vector2 position, float rotation, Texture2D texture, int tileX, int tileY, string objectID, TileMap map)
+		public void initialize (Vector2 position, float rotation, Texture2D texture)
 		{
 			this.texture = texture;
 			this.animationCount = 0;
-            this.objectID = objectID;
-            this.map = map;
-            this.tileX = tileX;
-            this.tileY = tileY;
 
-            this.map.mapCell[tileX, tileY].AddObject(objectID);
-        
 			destination = new Rectangle(
 				(int)position.X - frameStartX/2,
 				(int)position.Y - frameStartY/2,
@@ -67,56 +52,44 @@ namespace Skulk
 				);
 		}
 
-        public void Update(TileMap myMap, int squaresAcross, int squaresDown, GameTime gameTime)
-        {
-           
-            int xCount;
-            int yCount;
-            KeyboardState ks = Keyboard.GetState();
-            if (isInCollision)
-            {
-                this.collide();
-            }
-            if (ks.IsKeyDown(Keys.Left))
-            {
-                this.rotation = (float)Math.PI / 2;
-                this.animationCount += 1;
-                this.Location.X = MathHelper.Clamp(this.Location.X - acceleration, 0, (myMap.MapWidth - squaresAcross) * 64);
+		public override void Update (GameTime gameTime)
+		{
+			KeyboardState ks = Keyboard.GetState ();
+			this.velocity.X = 0;
+			this.velocity.Y = 0;
 
-            }
 
-            if (ks.IsKeyDown(Keys.Right))
-            {
-                this.rotation = (float)(3 * Math.PI / 2); ;
-                this.animationCount += 1;
-                this.Location.X = MathHelper.Clamp(this.Location.X + acceleration, 0, (myMap.MapWidth - squaresAcross) * 64);
+			if (ks.IsKeyDown (Keys.Down)) {
+				this.velocity.Y += 3;
+				this.rotation = 0;
+				this.animationCount += 1;
+			}
 
-            }
+			if (ks.IsKeyDown (Keys.Up)) {
+				this.velocity.Y -= 3;
+				this.rotation = (float)Math.PI;
+				this.animationCount += 1;
+			}
 
-            if (ks.IsKeyDown(Keys.Up))
-            {
-                this.rotation = (float)Math.PI;
-                this.animationCount += 1;
-                this.Location.Y = MathHelper.Clamp(this.Location.Y - acceleration, 0, (myMap.MapHeight - squaresDown) * 64);
-            }
+			if(ks.IsKeyDown(Keys.Left)){
+				this.velocity.X -= 3;
+				this.rotation = (float)Math.PI/2;
+				this.animationCount += 1;
+			}
 
-            if (ks.IsKeyDown(Keys.Down))
-            {
-                this.rotation = 0;
-                this.animationCount += 1;
-                this.Location.Y = MathHelper.Clamp(this.Location.Y + acceleration, 0, (myMap.MapHeight - squaresDown) * 64);
-            }
-            xCount = (int)this.Location.X / 64 + squaresAcross / 2;
-            yCount = (int)this.Location.Y / 64 + squaresDown / 2;
-            this.updateTilePosition(xCount, yCount);
+			if(ks.IsKeyDown(Keys.Right)){
+				this.velocity.X += 3;
+				this.rotation = (float)(3*Math.PI/2) ;
+				this.animationCount += 1;
+			}
 
-            
-           
-            this.UpdateAnimation();
-            base.Update(gameTime);
+			//this.position.Y += this.velocity.Y;
+			//this.position.X += this.velocity.X;
 
-        }
-		
+			this.UpdateAnimation();
+			base.Update(gameTime);
+		}
+
 		public void draw (SpriteBatch spritebatch)
 		{
 			// Basic destination rectangle updating from last time. 
@@ -131,7 +104,7 @@ namespace Skulk
 
 		}
 
-		public void UpdateAnimation()
+		 public void UpdateAnimation()
         {
             if (this.animationCount > this.animationMax)
             {
@@ -146,35 +119,6 @@ namespace Skulk
 
         }
 
-         public void updateTilePosition(int newX, int newY)
-         {
-            this.map.mapCell[this.tileX, this.tileY].RemoveObject(this.objectID);
-            this.tileX = newX;
-            this.tileY = newY;
-            this.map.mapCell[newX, newY].AddObject(this.objectID);
-            
-            
-         }
-
-        public void isColliding(Object Object)
-        {
-            
-            if ((Object.tileX >= this.tileX - 1 && Object.tileX <= this.tileX + 1) &&
-                (Object.tileY >= this.tileY - 1 && Object.tileY <= this.tileY + 1))
-            {
-                if (this.destination.Y >= Object.destination.Y - 1 && this.destination.Y <= Object.destination.Y + Object.destination.Height)
-                    Console.WriteLine("true!");
-
-               
-            }
-           
-        }
-
-        public void collide()
-        {
-           //to do
-            
-        }
 
 
 	}

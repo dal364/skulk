@@ -36,7 +36,6 @@ namespace Skulk
         {
             Objects.Remove(objectID);
         }
-
 	}
 }
 
