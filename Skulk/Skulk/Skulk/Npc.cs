@@ -23,7 +23,7 @@ namespace Skulk
 			base.frameStartY = 33;
 		}
 
-        public void initialize(TileMap map, int x, int y, int offsetX, int offsetY, Texture2D texture, string objectID, Point[] patrolTiles)
+        public void initialize(TileMap map, int x, int y, int offsetX, int offsetY, Texture2D texture, string objectID, Point[] patrolTiles,int speed)
         {
             this.patrolTiles = patrolTiles;
             this.originalOffsetX = offsetX;
@@ -33,8 +33,8 @@ namespace Skulk
             this.objectID = objectID;
             this.curTileX = x;
             this.curTileY = y;
-            this.moveBy = 2;
-            this.itr = 1;
+            this.moveBy = speed;
+            this.itr = 1;//index of next tile to move to, guard initially drawn at tile 0 it patrolTiles, so start itr at 1
 
             movingVertical = false;
             movingHorizontal = false;
@@ -61,6 +61,8 @@ namespace Skulk
                     movingHorizontal = false;
                     if (moveBy < 0)
                         moveBy = moveBy * -1;
+
+                    this.rotation = 0;
                 }
                 else if (patrolTiles[itr].Y - curTileY < 0)
                 {
@@ -68,6 +70,8 @@ namespace Skulk
                     movingHorizontal = false;
                     if (moveBy > 0)
                         moveBy = moveBy * -1;
+
+                    this.rotation = (float)Math.PI;
                 }
                 else if (patrolTiles[itr].X - curTileX > 0) //moving in terms of X
                 {
@@ -75,6 +79,8 @@ namespace Skulk
                     movingHorizontal = true;
                     if (moveBy < 0)
                         moveBy = moveBy * -1;
+
+                    this.rotation = 3*(float)Math.PI/2;
                 }
                 else if (patrolTiles[itr].X - curTileX < 0)
                 {
@@ -82,6 +88,8 @@ namespace Skulk
                     movingHorizontal = true;
                     if (moveBy > 0)
                         moveBy = moveBy * -1;
+
+                    this.rotation = (float)Math.PI/2;
                 }
                 else
                 {

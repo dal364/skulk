@@ -17,6 +17,7 @@ namespace Skulk
 
 		protected TileMap map;
 
+        protected float rotation;
 		protected int frameCount = 0; // Which frame we are.  Values = {0, 1, 2}
         protected int frameSkipY = 32; // How much to move the frame in X when we increment a frame--X distance between top left corners.
         protected int frameStartX = 0; // X of top left corner of frame 0. 
@@ -40,7 +41,7 @@ namespace Skulk
 			this.objectID = objectID;
             this.curTileX = x;
             this.curTileY = y;
-
+            this.rotation = 0;
 
 			map.mapCell[x,y].AddObject(objectID);
 
@@ -60,13 +61,15 @@ namespace Skulk
 			foreach (string objectID in map.mapCell[x + firstX,y + firstY].Objects) {
                 // draw the specific object
 				if(objectID.Equals(this.objectID)){
+                    Vector2 origin = new Vector2(this.source.Width / 2, this.source.Height / 2);
 				spriteBatch.Draw(
 					texture,
 					new Rectangle(
 					(x * 64) + this.originalOffsetX - offsetX,
 					(y * 64) + this.originalOffsetY - offsetY, this.frameWidth, this.frameHeight),
         			source,
-					Color.White);
+					Color.White,
+                    this.rotation,origin, SpriteEffects.None,0);
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 #region Using Statements
 using System;
-
+using System.IO;
+using System.Collections;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,7 +20,7 @@ namespace Skulk
 
 		Player player;
 		torch testObject;
-		Npc testGuard;
+		ArrayList guards;
 
 		//Tile Map stuff
 		TileMap myMap = new TileMap();
@@ -51,11 +52,11 @@ namespace Skulk
 
 			camera = new Camera(this);
 			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
+    
 
-			Texture2D guardTexture = Content.Load<Texture2D> ("guard");
-			testGuard = new Npc(this);
-            Point[] testPatrolPath = { new Point(10, 6),new Point(10,10), new Point(15,10), new Point(15,6),new Point(15,10),new Point(10,10)};
-			testGuard.initialize(myMap,10,6,0,0,guardTexture,"guard",testPatrolPath);
+            //Load guards
+            loadGuards();
+
 
 			Vector2 start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			Texture2D texture = Content.Load<Texture2D>("sprite");
@@ -99,7 +100,10 @@ namespace Skulk
 			camera.Update(myMap,squaresAcross,squaresDown,gameTime);
 			player.Update(gameTime);
 			testObject.Update(gameTime);
-			testGuard.Update(gameTime);
+            foreach (Npc guard in guards)
+            {
+                guard.Update(gameTime);
+            }
 			// TODO: Add your update logic here			
 			base.Update (gameTime);
 		}
@@ -143,7 +147,10 @@ namespace Skulk
            
 				for (int x = 0; x < squaresAcross; x++) {
 					testObject.draw(spriteBatch, x, y, firstX, firstY, offsetX, offsetY);
-					testGuard.draw(spriteBatch, x, y, firstX, firstY, offsetX, offsetY);
+                    foreach (Npc guard in guards)
+                    {
+                        guard.draw(spriteBatch, x, y, firstX, firstY, offsetX, offsetY);
+                    }
 				}
 			}
 
@@ -154,8 +161,39 @@ namespace Skulk
 			spriteBatch.End ();
 			base.Draw (gameTime);
 		}
-		
-	
+
+        /* Read in guards from text file. Each line contains the patrol 
+         * points for a guard and a single integer at the end of the line for speed.
+         * */
+        public void loadGuards()
+        {
+            guards = new ArrayList();
+            Texture2D guardTexture = Content.Load<Texture2D>("guard");
+            TextReader gr = new StreamReader("guardData.csv");
+            TextReader nr = new StreamReader("guardData.csv");
+            String line;
+            int numGuards = nr.ReadToEnd().Split('\n').Length - 1;
+            for (int i = 0; i < numGuards; i++)
+            {
+                line = gr.ReadLine();
+                int speed = Convert.ToInt32(line.Split('>')[line.Split('>').Length-1]);
+                int numPoints = Convert.ToInt32(line.Split(';').Length - 1);
+                String[] points = line.Split(';'); //last part will be speed, not used
+                Point[] patrolPoints = new Point[numPoints];
+                for (int j = 0; j < numPoints; j++)
+                {
+                    String[] point = points[j].Split(',');
+                    int posX = Convert.ToInt32(point[0]);
+                    int posy = Convert.ToInt32(point[1]);
+                    patrolPoints[j] = new Point(posX, posy);
+                    
+                }
+                Npc guard = new Npc(this);
+                guard.initialize(myMap, patrolPoints[0].X, patrolPoints[0].Y, 0, 0, guardTexture, "guard"+i, patrolPoints, speed);
+                guards.Add(guard);
+
+            }
+        }
 	}
 }
 
