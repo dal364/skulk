@@ -1,2 +1,0 @@
-c:\users\dylan\documents\visual studio 2010\Projects\Skulk\Skulk\Skulk\SkulkContent\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\Dallas\Documents\Visual Studio 2010\Projects\skulk-experimental\Skulk\Skulk\SkulkContent\obj\x86\Debug\ResolveAssemblyReference.cache
