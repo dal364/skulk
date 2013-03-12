@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,8 +15,15 @@ namespace Skulk
         Point[] patrolTiles;
         int itr; //iterator for patrolTiles
         int moveBy;
+        int length; // Patrol list length or to let it know to use pathfinder length
         Boolean movingVertical;
         Boolean movingHorizontal;
+
+        Point moveTo;
+
+        Boolean init;
+        Boolean ISeeYou;
+
 		public Npc(Game game)
 			:base(game)
 		{
@@ -34,7 +43,11 @@ namespace Skulk
             this.curTileX = x;
             this.curTileY = y;
             this.moveBy = speed;
-            this.itr = 1;//index of next tile to move to, guard initially drawn at tile 0 it patrolTiles, so start itr at 1
+            this.itr = 1; //index of next tile to move to, guard initially drawn at tile 0 it patrolTiles, so start itr at 1
+            this.ISeeYou = false;
+            this.moveTo = new Point(-1, -1);
+            this.length = 0;
+            this.init = true;
 
             movingVertical = false;
             movingHorizontal = false;
@@ -50,11 +63,46 @@ namespace Skulk
         }
 		public override void Update (GameTime gameTime)
 		{
-          
-           //Debug//Console.WriteLine("offsetx: " +originalOffsetX + "       " + "offsety: "+originalOffsetY +"              "+ "tilex: " + curTileX + "tiley: " + curTileY) +"                "+ "destx: " + patrolTiles[itr].X + "   " + "desty: "+ patrolTiles[itr].Y);
-            if (patrolTiles.Length > 1)
+           //Debug//Console.WriteLine("offsetx: " +originalOffsetX + "       " + "offsety: "+originalOffsetY +"              "+ "tilex: " + curTileX + "tiley: " + curTileY) +"               "+ "destx: " + patrolTiles[itr].X + "   " + "desty: "+ patrolTiles[itr].Y);
+
+            Point current;
+            Point goal = detectionCheck();
+            Console.WriteLine(goal.X + "      " + goal.Y);
+
+            // If the guard see's you it will create it's own path, otherwise use it's set path
+            if (ISeeYou)
             {
-                if (patrolTiles[itr].Y - curTileY > 0) //still moving in terms of Y
+                length = 2;
+                current.X = curTileX;
+                current.Y = curTileY;
+                moveTo = pathFinder(current, goal);
+            }
+            else // Patrol
+            {
+
+                current.X = curTileX;
+                current.Y = curTileY;
+
+                if (patrolTiles.Length > 1)
+                {
+                    moveTo = pathFinder(current, patrolTiles[itr]);
+                    length = patrolTiles.Length;
+                }
+                else
+                {
+                    moveTo = pathFinder(current, patrolTiles[0]);
+                    if ((curTileX == patrolTiles[0].X) && (curTileY == patrolTiles[0].Y))
+                    {
+                        length = patrolTiles.Length;
+                    }
+                }
+                
+            }
+
+            
+            if (length > 1)
+            {
+                if (moveTo.Y - curTileY > 0) //still moving in terms of Y
                 {
                     movingVertical = true;
 
@@ -64,7 +112,7 @@ namespace Skulk
 
                     this.rotation = 0;
                 }
-                else if (patrolTiles[itr].Y - curTileY < 0)
+                else if (moveTo.Y - curTileY < 0)
                 {
                     movingVertical = true;
                     movingHorizontal = false;
@@ -73,7 +121,7 @@ namespace Skulk
 
                     this.rotation = (float)Math.PI;
                 }
-                else if (patrolTiles[itr].X - curTileX > 0) //moving in terms of X
+                else if (moveTo.X - curTileX > 0) //moving in terms of X
                 {
                     movingVertical = false;
                     movingHorizontal = true;
@@ -82,7 +130,7 @@ namespace Skulk
 
                     this.rotation = 3*(float)Math.PI/2;
                 }
-                else if (patrolTiles[itr].X - curTileX < 0)
+                else if (moveTo.X - curTileX < 0)
                 {
                     movingVertical = false;
                     movingHorizontal = true;
@@ -95,18 +143,44 @@ namespace Skulk
                 {
                     //shouldn't happen
                 }
-                if (curTileX == patrolTiles[itr].X && movingVertical) //move in terms of y
+                if (curTileX == moveTo.X && movingVertical) //move in terms of y
                 {
                     //Debug//Console.WriteLine("inY");    
                     this.originalOffsetY += moveBy;
 
-                    if (curTileY == patrolTiles[itr].Y)
+                    if (curTileY == moveTo.Y)
                     {
                         if ((moveBy > 0 && originalOffsetY >= 64) || (moveBy < 0 && originalOffsetY <= 0))
                         {
-                            itr++;
-                            if (itr >= patrolTiles.Length)
-                                itr = 0;
+                            goal = detectionCheck();
+                            current.X = curTileX;
+                            current.Y = curTileY;
+
+                            if (!ISeeYou)
+                            {
+                                itr++;
+                                if (itr >= patrolTiles.Length)
+                                    itr = 0;
+
+                                if (patrolTiles.Length > 1)
+                                {
+                                    moveTo = pathFinder(current, patrolTiles[itr]);
+                                    length = patrolTiles.Length;
+                                }
+                                else
+                                {
+                                    moveTo = pathFinder(current, patrolTiles[0]);
+                                    if ((curTileX == patrolTiles[0].X) && (curTileY == patrolTiles[0].Y))
+                                    {
+                                        length = patrolTiles.Length;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                moveTo = pathFinder(current, goal);
+                            }
+                            
                         }
                     }
                     else
@@ -131,13 +205,39 @@ namespace Skulk
                 {
                     //Debug//Console.WriteLine("inX");
                     this.originalOffsetX += moveBy;
-                    if (curTileX == patrolTiles[itr].X)
+                    if (curTileX == moveTo.X)
                     {
                         if ((moveBy > 0 && originalOffsetX >= 64) || (moveBy < 0 && originalOffsetX <= 0))
                         {
-                            itr++;
-                            if (itr >= patrolTiles.Length)
-                                itr = 0;
+                            goal = detectionCheck(); // c
+                            current.X = curTileX;
+                            current.Y = curTileY;
+
+                            // Checks whether the guard see you or not.
+                            if (!ISeeYou)
+                            {
+                                itr++;
+                                if (itr >= patrolTiles.Length)
+                                    itr = 0;
+
+                                if (patrolTiles.Length > 1)
+                                {
+                                    moveTo = pathFinder(current, patrolTiles[itr]);
+                                    length = patrolTiles.Length;
+                                }
+                                else
+                                {
+                                    moveTo = pathFinder(current, patrolTiles[0]);
+                                    if ((curTileX == patrolTiles[0].X) && (curTileY == patrolTiles[0].Y))
+                                    {
+                                        length = patrolTiles.Length;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                moveTo = pathFinder(current, goal);
+                            }
                         }
 
                     }
@@ -165,6 +265,156 @@ namespace Skulk
 			base.Update(gameTime);
 		}
 
+
+        /**
+         * Finds the next closest point to the goal
+         * start - is the starting position
+         * goal - is the position you want to get to
+         */
+        public Point pathFinder(Point start, Point goal)
+        {
+
+            if ((start.X == goal.X) && (start.Y == goal.Y))
+            {
+                return goal;
+            }
+
+            LinkedList<Point> openset = new LinkedList<Point>();
+            LinkedList<Point> closedset = new LinkedList<Point>();
+
+            Point current;
+
+            current.X = 0;
+            current.Y = 0;
+
+            Hashtable f_score = new Hashtable();
+
+            // Calculation for the distance between guard and player
+            f_score[start] = heuristicCostEstimate(start, goal);
+
+
+            LinkedList<Point> neighbors = find_neighbors(start);
+            // Adds the neighbors to the openset, if it's a possible place to move to and calculates there distance
+            foreach (Point neighbor in neighbors)
+            {
+                // Checks if the neighbor is in the closedset (Walls, etc)
+                if (closedset.Contains(neighbor))
+                {
+                    // Skip it
+                }
+                else if (!openset.Contains(neighbor))
+                {
+                    f_score[neighbor] = heuristicCostEstimate(neighbor, goal);
+
+                    if (!openset.Contains(neighbor))
+                    {
+                        openset.AddLast(neighbor);
+                    }
+                }
+
+            }
+
+            // Finds the closest point
+            int lowest = 9999;
+            foreach (Point score in openset)
+            {
+                int check = (int)f_score[score];
+                if (check < lowest)
+                {
+                    lowest = check;
+                    current = score;
+                }
+            }
+
+            if ((current.X == goal.X) && (current.Y == goal.Y))
+            {
+                return goal;
+            }
+
+            openset.Remove(current);
+            closedset.AddLast(current);
+
+            return current;
+        }
+
+
+        /**
+         * current is the Center point
+         * returns the neighbor points of the current point 
+         */
+        public LinkedList<Point> find_neighbors(Point current)
+        {
+            LinkedList<Point> neighbor = new LinkedList<Point>();
+            neighbor.AddLast( new Point(current.X + 1, current.Y) );
+            neighbor.AddLast( new Point(current.X, current.Y + 1) );
+            neighbor.AddLast( new Point(current.X - 1, current.Y) );
+            neighbor.AddLast( new Point(current.X, current.Y - 1) );
+
+            return neighbor;
+        }
+
+        /**
+         * Calculates the distance between the guard and player
+         * 
+         */
+        public int heuristicCostEstimate(Point start, Point goal)
+        {
+            int x = start.X - goal.X;
+            int y = start.Y - goal.Y;
+
+            int distance = (x*x) + (y*y);
+
+            return distance;
+        }
+
+        public Point detectionCheck()
+        {
+            ArrayList tilesInRange = new ArrayList();
+
+            if (rotation == 0)
+            {
+                for (int i = 0; i <= 6; i++)
+                {
+                    for (int j = -3; j <= 3; j++)
+                    {
+                        tilesInRange.Add(new Point(curTileX + j, curTileY + i));
+                    }
+                }
+            }
+            
+            else if (rotation == (float)Math.PI)
+            {
+                for (int i = 0; i >= -6; i--)
+                    for (int j = -3; j <= 3; j++)
+                        tilesInRange.Add(new Point(curTileX + j, curTileY + i));
+            }
+          
+            else if(rotation == 3*(float)Math.PI/2)
+            {
+
+                for (int i = 0; i <= 6; i++)
+                    for (int j = -3; j <= 3; j++)
+                        tilesInRange.Add(new Point(curTileX + i, curTileY + j));
+            }
+            else if (rotation == (float)Math.PI / 2)
+            {
+                for (int i = 0; i >= -6; i--)
+                    for (int j = -3; j <= 3; j++)
+                        tilesInRange.Add(new Point(curTileX + i, curTileY + j));
+            }
+
+            ISeeYou = false;
+            foreach (Point p in tilesInRange)
+            {
+                if (this.map.mapCell[p.X, p.Y].hasObject("Player"))
+                {
+                    Console.WriteLine("true");
+                    ISeeYou = true;
+                    return new Point(p.X, p.Y);
+                }
+            }
+            return new Point(-1,-1);
+        }
 		public void UpdateAnimation ()
 		{
 	

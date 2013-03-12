@@ -26,6 +26,16 @@ namespace Skulk
 		int animationCount; // How many ticks since the last frame change.
         int animationMax = 10; // How many ticks to change frame after. 
 
+        // Camera Movement
+        public Vector2 Location = Vector2.Zero;
+
+        // Player Movement
+        Boolean upMove;
+        Boolean downMove;
+        Boolean leftMove;
+        Boolean rightMove;
+        Vector2 position;
+
 		public Player (Game game)
 			:base(game)
 		{
@@ -52,39 +62,93 @@ namespace Skulk
 				);
 		}
 
-		public override void Update (GameTime gameTime)
+        public void Update(TileMap myMap, int squaresAcross, int squaresDown, GameTime gameTime)
 		{
 			KeyboardState ks = Keyboard.GetState ();
 			this.velocity.X = 0;
 			this.velocity.Y = 0;
 
+            position.X = (400 + (int)this.Location.X) / 64;
+            position.Y = (240 + (int)this.Location.Y) / 64;
+            myMap.mapCell[(int)position.X, (int)position.Y].RemoveObject("Player");
 
 			if (ks.IsKeyDown (Keys.Down)) {
-				this.velocity.Y += 3;
+                if (this.downMove)
+                {
+                    // Add code for player to move in camera
+                    this.downMove = false;
+                }
+                else
+                {
+                    this.Location.Y = MathHelper.Clamp(this.Location.Y + 2, 0, (myMap.MapHeight - squaresDown) * 64);
+                    if (this.Location.Y == (myMap.MapHeight - squaresDown) * 64)
+                    {
+                        this.downMove = true;
+                    }
+                }
 				this.rotation = 0;
 				this.animationCount += 1;
 			}
 
 			if (ks.IsKeyDown (Keys.Up)) {
-				this.velocity.Y -= 3;
+                if (this.upMove)
+                {
+                    // Add code for player to move in camera
+                    this.upMove = false;
+                }
+                else
+                {
+                    this.Location.Y = MathHelper.Clamp(this.Location.Y - 2, 0, (myMap.MapHeight - squaresDown) * 64);
+                    if (this.Location.Y == 0)
+                    {
+                        this.upMove = true;
+                    }
+                }
+
 				this.rotation = (float)Math.PI;
 				this.animationCount += 1;
 			}
 
 			if(ks.IsKeyDown(Keys.Left)){
-				this.velocity.X -= 3;
+                if (this.leftMove)
+                {
+                    // Add code for player to move in camera
+                    this.leftMove = false;
+                }
+                else
+                {
+                    this.Location.X = MathHelper.Clamp(this.Location.X - 2, 0, (myMap.MapWidth - squaresAcross) * 64);
+                    if (this.Location.X == 0)
+                    {
+                        this.leftMove = true;
+                    }
+                }
+
 				this.rotation = (float)Math.PI/2;
 				this.animationCount += 1;
 			}
 
 			if(ks.IsKeyDown(Keys.Right)){
-				this.velocity.X += 3;
+                if (this.rightMove)
+                {
+                    // Add code for player to move in camera
+                    this.rightMove = false;
+                }
+                else
+                {
+                    this.Location.X = MathHelper.Clamp(this.Location.X + 2, 0, (myMap.MapHeight - squaresDown) * 64);
+                    if (this.Location.X == (myMap.MapHeight - squaresDown) * 64)
+                    {
+                        this.rightMove = true;
+                    }
+                }
 				this.rotation = (float)(3*Math.PI/2) ;
 				this.animationCount += 1;
 			}
 
-			//this.position.Y += this.velocity.Y;
-			//this.position.X += this.velocity.X;
+            position.X = (400 + (int)this.Location.X) / 64;
+            position.Y = (240 + (int)this.Location.Y) / 64;
+            myMap.mapCell[(int)position.X, (int)position.Y].AddObject("Player");
 
 			this.UpdateAnimation();
 			base.Update(gameTime);
@@ -99,6 +163,7 @@ namespace Skulk
 			// Update the source rectangle, based on where in the animation we are.  
             this.source.Y = this.frameStartY + this.frameSkipY * this.frameCount;
 			Vector2 origin = new Vector2(this.source.Width /2 , this.source.Height/2 );
+            Console.WriteLine(this.destination.X + ", " + this.destination.Y);
 			//spritebatch.Draw(texture,this.destination,Color.AliceBlue);
 			spritebatch.Draw(texture, this.destination, this.source, Color.White, this.rotation, origin, SpriteEffects.None, 0);
 

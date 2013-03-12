@@ -36,6 +36,17 @@ namespace Skulk
         {
             Objects.Remove(objectID);
         }
+        public bool hasObject(String objectName)
+        {
+            if(Objects.Contains(objectName))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 	}
 }
 

@@ -27,10 +27,6 @@ namespace Skulk
 		int squaresAcross;
 		int squaresDown;
 
-		//Camera
-		Camera camera;
-
-
 		public Game1 ()
 		{
 			graphics = new GraphicsDeviceManager (this);
@@ -50,7 +46,6 @@ namespace Skulk
 			squaresAcross = GraphicsDevice.Viewport.Width / 64 + 2;
 		    squaresDown = GraphicsDevice.Viewport.Height / 64 + 2;
 
-			camera = new Camera(this);
 			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
     
 
@@ -93,12 +88,10 @@ namespace Skulk
 			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
 				Exit ();
 			}
-
 			if(ks.IsKeyDown(Keys.Escape))
 				this.Exit();
 
-			camera.Update(myMap,squaresAcross,squaresDown,gameTime);
-			player.Update(gameTime);
+            player.Update(myMap, squaresAcross, squaresDown,gameTime);
 			testObject.Update(gameTime);
             foreach (Npc guard in guards)
             {
@@ -117,11 +110,11 @@ namespace Skulk
 			graphics.GraphicsDevice.Clear (Color.Black);
 			spriteBatch.Begin ();
 
-			Vector2 firstSquare = new Vector2 (camera.Location.X / 64, camera.Location.Y / 64);
+            Vector2 firstSquare = new Vector2(player.Location.X / 64, player.Location.Y / 64);
 			int firstX = (int)firstSquare.X;
 			int firstY = (int)firstSquare.Y;
 
-			Vector2 squareOffset = new Vector2 (camera.Location.X % 64, camera.Location.Y % 64);
+            Vector2 squareOffset = new Vector2(player.Location.X % 64, player.Location.Y % 64);
 			int offsetX = (int)squareOffset.X;
 			int offsetY = (int)squareOffset.Y;
 	
