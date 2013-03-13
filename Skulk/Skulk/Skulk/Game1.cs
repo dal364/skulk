@@ -10,6 +10,12 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Skulk
 {
+    public enum GameState
+    {
+        Menu,
+        Game,
+        Over
+    }
 	/// <summary>
 	/// This is the main type for your game
 	/// </summary>
@@ -27,12 +33,15 @@ namespace Skulk
 		int squaresAcross;
 		int squaresDown;
 
+        GameState gameState;
+       
 		public Game1 ()
 		{
 			graphics = new GraphicsDeviceManager (this);
 			Content.RootDirectory = "Content";	            
 			graphics.IsFullScreen = false;
-
+            gameState = new GameState();
+            gameState = GameState.Game;
 		}
 
 		/// <summary>
@@ -49,8 +58,8 @@ namespace Skulk
 			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
             Texture2D gameOverTexture = Content.Load<Texture2D>("GameOver");
             gameOver = new GameOverScreen(this);
-            gameOver.initialize(gameOverTexture);
-
+            gameOver.initialize(gameOverTexture, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            gameState = GameState.Game;
     
 
             //Load guards
@@ -95,16 +104,24 @@ namespace Skulk
 			if(ks.IsKeyDown(Keys.Escape))
 				this.Exit();
 
-            player.Update(myMap, squaresAcross, squaresDown,gameTime);
-
-   
-  
+            player.Update(myMap, squaresAcross, squaresDown, gameTime);
 			testObject.Update(gameTime);
             testObject.isColliding(player);
             foreach (Npc guard in guards)
             {
-              
+                if(guard.isColliding(player)){
+                    gameState = GameState.Over;
+                }
                 guard.Update(gameTime);
+            }
+            if (gameState == GameState.Over)
+            {
+                if (ks.IsKeyDown(Keys.Enter))
+                {
+             
+                    this.Initialize();
+                    
+                }
             }
 			// TODO: Add your update logic here			
 			base.Update (gameTime);
@@ -161,7 +178,7 @@ namespace Skulk
             foreach (Npc guard in guards)
             {
 
-                if (guard.isColliding(player))
+                if (gameState == GameState.Over)
                 {
                     gameOver.Draw(spriteBatch);
                 }
@@ -201,6 +218,8 @@ namespace Skulk
                 guards.Add(guard);
 
             }
+            gr.Close();
+            nr.Close();
         }
 	}
 }

@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Skulk
 {
+    
 	public class Npc: Object
 	{
 

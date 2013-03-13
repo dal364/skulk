@@ -94,10 +94,10 @@ namespace Skulk
             if ((player.tileX >= this.curTileX - 1 && player.tileX <= this.curTileX + 1) &&
                 (player.tileY >= this.curTileY - 1 && player.tileY <= this.curTileY + 1))
             {
-                Console.WriteLine("close!");
+               // Console.WriteLine("close!");
                 if (this.boundingBox.Intersects(player.boundingBox))
                 {
-                    Console.WriteLine("true!");
+                 //   Console.WriteLine("true!");
                     return true;
                 }
             }
