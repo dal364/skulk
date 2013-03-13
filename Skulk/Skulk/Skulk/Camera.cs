@@ -18,7 +18,6 @@ namespace Skulk
 			KeyboardState ks = Keyboard.GetState ();
 			if (ks.IsKeyDown (Keys.Left)) {
 				this.Location.X = MathHelper.Clamp (this.Location.X - 2, 0, (myMap.MapWidth - squaresAcross) * 64);
-                
 			}
 
 			if (ks.IsKeyDown (Keys.Right)) {
