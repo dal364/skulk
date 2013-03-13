@@ -17,6 +17,7 @@ namespace Skulk
 
 		public override void Update (GameTime gameTime)
 		{
+       
 			this.animationCount += 1;
 			this.UpdateAnimation();
 			base.Update(gameTime);

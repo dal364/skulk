@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="GameOverScreen.cs" />
     <Compile Include="MapCell.cs" />
     <Compile Include="Npc.cs" />
     <Compile Include="Object.cs" />

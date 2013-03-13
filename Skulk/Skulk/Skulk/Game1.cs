@@ -21,15 +21,11 @@ namespace Skulk
 		Player player;
 		torch testObject;
 		ArrayList guards;
-
+        GameOverScreen gameOver;
 		//Tile Map stuff
 		TileMap myMap = new TileMap();
 		int squaresAcross;
 		int squaresDown;
-
-		//Camera
-		Camera camera;
-
 
 		public Game1 ()
 		{
@@ -50,8 +46,11 @@ namespace Skulk
 			squaresAcross = GraphicsDevice.Viewport.Width / 64 + 2;
 		    squaresDown = GraphicsDevice.Viewport.Height / 64 + 2;
 
-			camera = new Camera(this);
 			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
+            Texture2D gameOverTexture = Content.Load<Texture2D>("GameOver");
+            gameOver = new GameOverScreen(this);
+            gameOver.initialize(gameOverTexture);
+
     
 
             //Load guards
@@ -61,7 +60,7 @@ namespace Skulk
 			Vector2 start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			Texture2D texture = Content.Load<Texture2D>("sprite");
 			player = new Player(this);
-			player.initialize(start, 0, texture);
+            player.initialize(start, 0, texture, 10, 10, "Player", myMap);
 			testObject = new torch(this);
 			testObject.initialize(myMap, 1, 1, 0, 0, torchTexture, "torch");
 			base.Initialize ();
@@ -93,15 +92,18 @@ namespace Skulk
 			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
 				Exit ();
 			}
-
 			if(ks.IsKeyDown(Keys.Escape))
 				this.Exit();
 
-			camera.Update(myMap,squaresAcross,squaresDown,gameTime);
-			player.Update(gameTime);
+            player.Update(myMap, squaresAcross, squaresDown,gameTime);
+
+   
+  
 			testObject.Update(gameTime);
+            testObject.isColliding(player);
             foreach (Npc guard in guards)
             {
+              
                 guard.Update(gameTime);
             }
 			// TODO: Add your update logic here			
@@ -117,11 +119,11 @@ namespace Skulk
 			graphics.GraphicsDevice.Clear (Color.Black);
 			spriteBatch.Begin ();
 
-			Vector2 firstSquare = new Vector2 (camera.Location.X / 64, camera.Location.Y / 64);
+            Vector2 firstSquare = new Vector2(player.Location.X / 64, player.Location.Y / 64);
 			int firstX = (int)firstSquare.X;
 			int firstY = (int)firstSquare.Y;
 
-			Vector2 squareOffset = new Vector2 (camera.Location.X % 64, camera.Location.Y % 64);
+            Vector2 squareOffset = new Vector2(player.Location.X % 64, player.Location.Y % 64);
 			int offsetX = (int)squareOffset.X;
 			int offsetY = (int)squareOffset.Y;
 	
@@ -156,8 +158,14 @@ namespace Skulk
 
 			//draw player
 			player.draw (this.spriteBatch);
+            foreach (Npc guard in guards)
+            {
 
-
+                if (guard.isColliding(player))
+                {
+                    gameOver.Draw(spriteBatch);
+                }
+            }
 			spriteBatch.End ();
 			base.Draw (gameTime);
 		}
@@ -176,7 +184,7 @@ namespace Skulk
             for (int i = 0; i < numGuards; i++)
             {
                 line = gr.ReadLine();
-                int speed = Convert.ToInt32(line.Split('>')[line.Split('>').Length-1]);
+                int speed = Convert.ToInt32(line.Split('>')[line.Split('>').Length - 1]);
                 int numPoints = Convert.ToInt32(line.Split(';').Length - 1);
                 String[] points = line.Split(';'); //last part will be speed, not used
                 Point[] patrolPoints = new Point[numPoints];
@@ -186,10 +194,10 @@ namespace Skulk
                     int posX = Convert.ToInt32(point[0]);
                     int posy = Convert.ToInt32(point[1]);
                     patrolPoints[j] = new Point(posX, posy);
-                    
+
                 }
                 Npc guard = new Npc(this);
-                guard.initialize(myMap, patrolPoints[0].X, patrolPoints[0].Y, 0, 0, guardTexture, "guard"+i, patrolPoints, speed);
+                guard.initialize(myMap, patrolPoints[0].X, patrolPoints[0].Y, 0, 0, guardTexture, "guard" + i, patrolPoints, speed);
                 guards.Add(guard);
 
             }
