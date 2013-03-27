@@ -29,7 +29,8 @@ namespace Skulk
 		int animationCount; // How many ticks since the last frame change.
         int animationMax = 10; // How many ticks to change frame after. 
 
-     
+        
+      
         public int tileX;
         public int tileY;
         protected string objectID;
@@ -50,6 +51,9 @@ namespace Skulk
             this.map = map;
             this.tileX = tileX;
             this.tileY = tileY;
+
+            
+            
 
             this.map.mapCell[tileX, tileY].AddObject(objectID);
 
@@ -82,10 +86,10 @@ namespace Skulk
 		{
 
 			KeyboardState ks = Keyboard.GetState ();
-          /*  MouseState ms = Mouse.GetState();
+            MouseState ms = Mouse.GetState();
             Vector2 mouseLoc = new Vector2(ms.X, ms.Y);
-            Vector2 direction = (Location - mouseLoc).Angle(); 
-            this.rotation = (float)(Math.Atan2(direction.Y, direction.X));*/
+            Vector2 direction = (Location - mouseLoc); 
+            this.rotation = (float)(Math.Atan2(direction.Y, direction.X));
 
             int xCount;
             int yCount;
