@@ -169,15 +169,31 @@ namespace Skulk
                     }
                     if (guard.ISeeYou)
                     {
+                        Console.WriteLine(guard.objectID);
                         gameState = GameState.Alert;
+                        
                     }
-                    else
-                    {
-                        gameState = GameState.Game;
-                    }
+                    
                     guard.Update(gameTime);
                 }
-              
+
+                // If all guards can't see me change gamestate from alert to game
+                int count = 0;
+                foreach (Npc guard in guards)
+                {
+                    
+                    if (!guard.ISeeYou)
+                    {
+                        count++;
+                    }
+                    if (count >= guards.Count)
+                    {
+                        gameState = GameState.Game;
+                       
+                    }
+
+                }
+
                 if (gameState == GameState.Game)
                 {
                     if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong == sound.Alert)
