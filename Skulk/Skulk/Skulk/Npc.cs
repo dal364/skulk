@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 
 
 namespace Skulk
@@ -20,12 +21,13 @@ namespace Skulk
         int moveByX;
         int speed;
 
+      
 
         Point moveTo;
 
         int length; // Patrol list length or to let it know to use pathfinder length
         Boolean init;
-        Boolean ISeeYou;
+        public Boolean ISeeYou;
 
         public Npc(Game game)
             : base(game)
@@ -54,6 +56,7 @@ namespace Skulk
             this.length = 0;
             this.init = true;
             this.ISeeYou = false;
+            
 
             map.mapCell[x, y].AddObject(objectID);
 
@@ -222,6 +225,25 @@ namespace Skulk
                 }
 
             }
+          /*  if (ISeeYou)
+            {
+                if (MediaPlayer.Queue.ActiveSong == sound.normalMusic)
+                {
+                    MediaPlayer.Stop();
+                    MediaPlayer.Volume = 0.5f;
+                    MediaPlayer.Play(sound.Alert);
+                }
+            }
+            else
+            {
+                if (MediaPlayer.Queue.ActiveSong != sound.normalMusic)
+                {
+                    MediaPlayer.Stop();
+                    MediaPlayer.Volume = 0.25f;
+                    MediaPlayer.Play(sound.normalMusic);
+                }
+            }*/
+           
             this.animationCount += 1;
             this.UpdateAnimation();
             base.Update(gameTime);
@@ -456,7 +478,7 @@ namespace Skulk
             {
                 if (this.map.mapCell[p.X, p.Y].hasObject("Player"))
                 {
-                    Console.WriteLine("true");
+                   // Console.WriteLine("true");
                     ISeeYou = true;
                     return new Point(p.X, p.Y);
                 }

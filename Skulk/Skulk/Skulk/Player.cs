@@ -16,6 +16,7 @@ namespace Skulk
 		public Rectangle destination;
 		Rectangle source;
 
+        Vector2 position;
 		float rotation;
 
 		int frameCount = 0; // Which frame we are.  Values = {0, 1, 2}
@@ -51,7 +52,9 @@ namespace Skulk
             this.map = map;
             this.tileX = tileX;
             this.tileY = tileY;
-
+            this.position = position;
+            this.Location.X = 64 * tileX;
+            this.Location.Y = 64 * tileY;
             
             
 
@@ -88,11 +91,22 @@ namespace Skulk
 			KeyboardState ks = Keyboard.GetState ();
             MouseState ms = Mouse.GetState();
             Vector2 mouseLoc = new Vector2(ms.X, ms.Y);
-            Vector2 direction = (Location - mouseLoc); 
-            this.rotation = (float)(Math.Atan2(direction.Y, direction.X));
+            Vector2 direction;
+            direction.X = mouseLoc.X - position.X;
+            direction.Y = mouseLoc.Y - position.Y;
+           
+            this.rotation = (float)(Math.Atan2(direction.Y, direction.X)) - (float)Math.PI/2;
+          
 
             int xCount;
             int yCount;
+            if (ks.IsKeyDown(Keys.W))
+            {
+                this.animationCount += 1;
+                this.Location.X = MathHelper.Clamp(this.Location.X - (float) Math.Sin(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * 64);
+                this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * 64);
+            }
+            /*
             if (ks.IsKeyDown(Keys.Left))
             {
                // this.rotation = (float)Math.PI / 2;
@@ -121,7 +135,7 @@ namespace Skulk
                // this.rotation = 0;
                 this.animationCount += 1;
                 this.Location.Y = MathHelper.Clamp(this.Location.Y + acceleration, 0, (myMap.MapHeight - squaresDown) * 64);
-            }
+            }*/
             xCount = (int)this.Location.X / 64 + squaresAcross / 2;
             yCount = (int)this.Location.Y / 64 + squaresDown / 2;
             this.updateTilePosition(xCount, yCount);
@@ -141,7 +155,7 @@ namespace Skulk
 			// Update the source rectangle, based on where in the animation we are.  
             this.source.Y = this.frameStartY + this.frameSkipY * this.frameCount;
 			Vector2 origin = new Vector2(this.source.Width /2 , this.source.Height/2 );
-            Console.WriteLine(this.destination.X + ", " + this.destination.Y);
+            //Console.WriteLine(this.destination.X + ", " + this.destination.Y);
 
             spritebatch.Draw(texture, this.destination, this.source, Color.White, this.rotation, origin, SpriteEffects.None, 0);
             /*boundingBox Debug

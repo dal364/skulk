@@ -23,7 +23,7 @@ namespace Skulk
             TextReader hr = new StreamReader("map.csv");
             String mapLine = tr.ReadLine();
             MapHeight = hr.ReadToEnd().Split('\n').Length - 1;
-            MapWidth = mapLine.Split(';').Length;
+            MapWidth = mapLine.Split(',').Length;
 
             mapCell = new MapCell[MapWidth, MapHeight];
 
@@ -33,9 +33,9 @@ namespace Skulk
                 for (int x = 0; x < MapWidth; x++)
                 {
 
-                    this.mapCell[x, y] = new MapCell(Convert.ToInt32(mapLine.Split(';')[x]));
+                    this.mapCell[x, y] = new MapCell(Convert.ToInt32(mapLine.Split(',')[x]));
 
-                    if (Convert.ToInt32(mapLine.Split(';')[x]) == 7)//integer corresponding to walls or boxes,etc
+                    if (Convert.ToInt32(mapLine.Split(',')[x]) == 7)//integer corresponding to walls or boxes,etc
                     {
                         obstacleTiles.AddFirst(new Point(x, y));
                     }

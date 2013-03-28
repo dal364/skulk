@@ -5,6 +5,9 @@ using System.Collections;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
+using System.Threading;
 
 #endregion
 
@@ -14,7 +17,8 @@ namespace Skulk
     {
         Menu,
         Game,
-        Over
+        Over,
+        Alert
     }
 	/// <summary>
 	/// This is the main type for your game
@@ -23,27 +27,36 @@ namespace Skulk
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
+        Texture2D blackTexture;
 
 		Player player;
 		torch testObject;
 		ArrayList guards;
         GameOverScreen gameOver;
+        SpriteFont gameOverFont;
         hud hud;
+
 		//Tile Map stuff
-		TileMap myMap = new TileMap();
+		TileMap myMap;
 		int squaresAcross;
 		int squaresDown;
 
+        //Menu
+        Menu menu;
+       
       
         GameState gameState;
+
+        int bestScore;
        
 		public Game1 ()
 		{
 			graphics = new GraphicsDeviceManager (this);
 			Content.RootDirectory = "Content";
             graphics.IsFullScreen = false;
+            
             gameState = new GameState();
-            gameState = GameState.Game;
+            gameState = GameState.Menu;
 		}
 
 		/// <summary>
@@ -53,30 +66,49 @@ namespace Skulk
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize ()
-		{                                                   // +2 to compensate for tiles off screen
-			squaresAcross = GraphicsDevice.Viewport.Width / 64 + 2;
-		    squaresDown = GraphicsDevice.Viewport.Height / 64 + 2;
+		{
+            this.IsMouseVisible = true;
+
+            //TileMap
+            myMap = new TileMap();
+            
+            //Audio
+            sound.normalMusic = Content.Load<Song>("hero");
+            sound.Alert = Content.Load<Song>("emergence");
 
             SpriteFont font = Content.Load<SpriteFont>("SpriteFont1");
-
+            blackTexture = new Texture2D(GraphicsDevice, 1, 1);
+            blackTexture.SetData(new[] { Color.Black });
+          
 			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
-            Texture2D gameOverTexture = Content.Load<Texture2D>("GameOver");
-            Texture2D hudTexture = Content.Load<Texture2D>("hud");
+            gameOverFont = Content.Load<SpriteFont>("GameOver");
+            Texture2D timerTexture = Content.Load<Texture2D>("hud");
+            Texture2D viewTexture = Content.Load<Texture2D>("view");
+            //Menu
+            menu = new Menu(this);
+            menu.initialize(blackTexture, font, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+           
+
+            // +2 to compensate for tiles off screen
+            squaresAcross = GraphicsDevice.Viewport.Width / 64 + 2;
+            squaresDown = GraphicsDevice.Viewport.Height / 64 + 2;
+
+            //hud
             hud = new hud(this);
-            hud.initialize(hudTexture, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, GraphicsDevice.Viewport.Width - 50, GraphicsDevice.Viewport.Height - 50,font);
-            gameOver = new GameOverScreen(this);
-            gameOver.initialize(gameOverTexture, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            gameState = GameState.Game;
+            hud.initializeTimer(timerTexture, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, GraphicsDevice.Viewport.Width - 50, GraphicsDevice.Viewport.Height - 50,font);
+            hud.initializeView(viewTexture, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+           
+           
     
 
             //Load guards
             loadGuards();
 
-
+            MediaPlayer.Volume = 0.25f;
 			Vector2 start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			Texture2D texture = Content.Load<Texture2D>("sprite");
 			player = new Player(this);
-            player.initialize(start, 0, texture, 10, 10, "Player", myMap);
+            player.initialize(start, 0, texture, 9, 15, "Player", myMap);
 			testObject = new torch(this);
 			testObject.initialize(myMap, 1, 1, 0, 0, torchTexture, "torch");
 			base.Initialize ();
@@ -91,7 +123,7 @@ namespace Skulk
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch (GraphicsDevice);
-
+           
 			//TODO: use this.Content to load your game content here 
 			Tile.TileSetTexture = Content.Load<Texture2D>("tileset");
 		}
@@ -111,27 +143,65 @@ namespace Skulk
 			if(ks.IsKeyDown(Keys.Escape))
 				this.Exit();
 
-            player.Update(myMap, squaresAcross, squaresDown, gameTime);
-			testObject.Update(gameTime);
-            testObject.isColliding(player);
-            foreach (Npc guard in guards)
+            if (gameState == GameState.Menu)
             {
-                if(guard.isColliding(player)){
-                    gameState = GameState.Over;
+                if (ks.IsKeyDown(Keys.Enter))
+                    gameState = GameState.Game;
+            }
+            if (gameState == GameState.Game || gameState == GameState.Alert)
+            {
+                player.Update(myMap, squaresAcross, squaresDown, gameTime);
+                testObject.Update(gameTime);
+                testObject.isColliding(player);
+                foreach (Npc guard in guards)
+                {
+
+                    if (guard.isColliding(player))
+                    {
+                        gameOver = new GameOverScreen(this);
+                        int score = ((int)hud.timer / 1000);
+                        if (score > bestScore)
+                            bestScore = score;
+                        gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString());
+                        gameState = GameState.Over;
+                 
+                        break;
+                    }
+                    if (guard.ISeeYou)
+                    {
+                        gameState = GameState.Alert;
+                    }
+                    else
+                    {
+                        gameState = GameState.Game;
+                    }
+                    guard.Update(gameTime);
                 }
-                guard.Update(gameTime);
+              
+                if (gameState == GameState.Game)
+                {
+                    if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong == sound.Alert)
+                        MediaPlayer.Play(sound.normalMusic);
+                }
+                if (gameState == GameState.Alert)
+                {
+                    Console.WriteLine("ALERT");
+                    if (MediaPlayer.Queue.ActiveSong != sound.Alert)
+                        MediaPlayer.Play(sound.Alert);
+                }
+               
+                hud.Update(gameTime);
             }
             if (gameState == GameState.Over)
             {
+                MediaPlayer.Stop();
                 if (ks.IsKeyDown(Keys.Enter))
                 {
-                  
+                    gameState = GameState.Game;
                     this.Initialize();
-                    
+
                 }
             }
-
-            hud.Update(gameTime);
 			// TODO: Add your update logic here			
 			base.Update (gameTime);
 		}
@@ -188,15 +258,21 @@ namespace Skulk
 
             if (gameState == GameState.Over)
             {
+                
                 gameOver.Draw(spriteBatch);
             }
 
             //draw hud
-            if (gameState == GameState.Game)
+            if (gameState == GameState.Game || gameState == GameState.Alert)
             {
                 hud.Draw(this.spriteBatch);
             }
-            
+
+            if (gameState == GameState.Menu)
+            {
+                menu.Draw(spriteBatch);
+            }
+
 
             
             
