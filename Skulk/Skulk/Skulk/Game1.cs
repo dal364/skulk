@@ -40,6 +40,7 @@ namespace Skulk
 		TileMap myMap;
 		int squaresAcross;
 		int squaresDown;
+        public int tileSize = 64;
 
         //Menu
         Menu menu;
@@ -47,7 +48,7 @@ namespace Skulk
       
         GameState gameState;
 
-        int bestScore;
+        int bestScore = 9999999;
        
 		public Game1 ()
 		{
@@ -71,6 +72,8 @@ namespace Skulk
 
             //TileMap
             myMap = new TileMap();
+           
+
             
             //Audio
             sound.normalMusic = Content.Load<Song>("hero");
@@ -90,9 +93,9 @@ namespace Skulk
            
 
             // +2 to compensate for tiles off screen
-            squaresAcross = GraphicsDevice.Viewport.Width / 64 + 2;
-            squaresDown = GraphicsDevice.Viewport.Height / 64 + 2;
-
+            squaresAcross = GraphicsDevice.Viewport.Width / tileSize + 2 ;
+            squaresDown = GraphicsDevice.Viewport.Height / tileSize + 2 ;
+            
             //hud
             hud = new hud(this);
             hud.initializeTimer(timerTexture, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, GraphicsDevice.Viewport.Width - 50, GraphicsDevice.Viewport.Height - 50,font);
@@ -125,7 +128,7 @@ namespace Skulk
 			spriteBatch = new SpriteBatch (GraphicsDevice);
            
 			//TODO: use this.Content to load your game content here 
-			Tile.TileSetTexture = Content.Load<Texture2D>("tileset");
+			Tile.TileSetTexture = Content.Load<Texture2D>("Castle2");
 		}
 
 		/// <summary>
@@ -159,10 +162,7 @@ namespace Skulk
                     if (guard.isColliding(player))
                     {
                         gameOver = new GameOverScreen(this);
-                        int score = ((int)hud.timer / 1000);
-                        if (score > bestScore)
-                            bestScore = score;
-                        gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString());
+                        gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Sorry Tim.");
                         gameState = GameState.Over;
                  
                         break;
@@ -191,7 +191,6 @@ namespace Skulk
                         gameState = GameState.Game;
                        
                     }
-
                 }
 
                 if (gameState == GameState.Game)
@@ -205,7 +204,16 @@ namespace Skulk
                     if (MediaPlayer.Queue.ActiveSong != sound.Alert)
                         MediaPlayer.Play(sound.Alert);
                 }
-               
+
+                if (player.tileX == 13 && player.tileY == 4)
+                {
+                    gameOver = new GameOverScreen(this);
+                    int score = ((int)hud.timer / 1000);
+                    if (score < bestScore)
+                        bestScore = score;
+                    gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Congratulations");
+                    gameState = GameState.Over;
+                }
                 hud.Update(gameTime);
             }
             if (gameState == GameState.Over)
@@ -231,11 +239,11 @@ namespace Skulk
 			graphics.GraphicsDevice.Clear (Color.Black);
 			spriteBatch.Begin ();
 
-            Vector2 firstSquare = new Vector2(player.Location.X / 64, player.Location.Y / 64);
+            Vector2 firstSquare = new Vector2(player.Location.X / tileSize, player.Location.Y / tileSize);
 			int firstX = (int)firstSquare.X;
 			int firstY = (int)firstSquare.Y;
 
-            Vector2 squareOffset = new Vector2(player.Location.X % 64, player.Location.Y % 64);
+            Vector2 squareOffset = new Vector2(player.Location.X % tileSize, player.Location.Y % tileSize);
 			int offsetX = (int)squareOffset.X;
 			int offsetY = (int)squareOffset.Y;
 	
@@ -247,9 +255,10 @@ namespace Skulk
 						spriteBatch.Draw (
         				Tile.TileSetTexture,
         				new Rectangle (
-            				(x * 64) - offsetX, (y * 64) - offsetY, 64, 64),
-        					Tile.GetSourceRectangle (tileID),
+            				(x * tileSize) - offsetX, (y * tileSize) - offsetY, tileSize, tileSize),
+        					Tile.GetSourceRectangle (tileID, tileSize),
         					Color.White);
+
 					}
 				
 

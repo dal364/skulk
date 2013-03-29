@@ -18,10 +18,17 @@ namespace Skulk
         public TileMap()
         {
             obstacleTiles = new LinkedList<Point>();
-            //parse spreadsheet for tiles
+            //parse spreadsheets for tiles
             TextReader tr = new StreamReader("map.csv");
             TextReader hr = new StreamReader("map.csv");
+
+            TextReader obstacleTr = new StreamReader("obstacle.csv");
+            TextReader obstacleHr = new StreamReader("obstacle.csv");
+
             String mapLine = tr.ReadLine();
+
+            String mapLineObstacle = obstacleTr.ReadLine();
+
             MapHeight = hr.ReadToEnd().Split('\n').Length - 1;
             MapWidth = mapLine.Split(',').Length;
 
@@ -34,16 +41,23 @@ namespace Skulk
                 {
 
                     this.mapCell[x, y] = new MapCell(Convert.ToInt32(mapLine.Split(',')[x]));
+                    this.mapCell[x, y].AddBaseTile(Convert.ToInt32(mapLineObstacle.Split(',')[x]));
+                 
 
-                    if (Convert.ToInt32(mapLine.Split(',')[x]) == 7)//integer corresponding to walls or boxes,etc
+                    if (Convert.ToInt32(mapLineObstacle.Split(',')[x]) != 0)//integer corresponding to walls or boxes,etc
                     {
                         obstacleTiles.AddFirst(new Point(x, y));
                     }
                 }
                 mapLine = tr.ReadLine();
+                mapLineObstacle = obstacleTr.ReadLine();
             }
             tr.Close();
             hr.Close();
+            obstacleHr.Close();
+            obstacleTr.Close();
+            Console.WriteLine(MapHeight);
+
         }
     }
 

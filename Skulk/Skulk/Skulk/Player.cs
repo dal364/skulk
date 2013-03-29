@@ -13,6 +13,7 @@ namespace Skulk
 
         float acceleration = 2;
 
+        int tileSize = 64;
 		public Rectangle destination;
 		Rectangle source;
 
@@ -34,6 +35,8 @@ namespace Skulk
       
         public int tileX;
         public int tileY;
+        public int nextTileX;
+        public int nextTileY;
         protected string objectID;
 
         protected TileMap map;
@@ -53,11 +56,11 @@ namespace Skulk
             this.tileX = tileX;
             this.tileY = tileY;
             this.position = position;
-            this.Location.X = 64 * tileX;
-            this.Location.Y = 64 * tileY;
+            this.Location.X = tileSize * tileX;
+            this.Location.Y = tileSize * tileY;
             
             
-
+            
             this.map.mapCell[tileX, tileY].AddObject(objectID);
 
             destination = new Rectangle(
@@ -96,15 +99,30 @@ namespace Skulk
             direction.Y = mouseLoc.Y - position.Y;
            
             this.rotation = (float)(Math.Atan2(direction.Y, direction.X)) - (float)Math.PI/2;
-          
+            //Console.WriteLine(nextTileX);
+           
+            //Console.WriteLine(myMap.obstacleTiles.Last.Value);
 
             int xCount;
             int yCount;
             if (ks.IsKeyDown(Keys.W))
             {
                 this.animationCount += 1;
-                this.Location.X = MathHelper.Clamp(this.Location.X - (float) Math.Sin(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * 64);
-                this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * 64);
+              
+                if (direction.X < 0)
+                    nextTileX = tileX - 1;
+                if (direction.X > 0)
+                    nextTileX = tileX + 1;
+                if (direction.Y > 0)
+                    nextTileY = tileY + 1;
+                if (direction.Y < 0)
+                    nextTileY = tileY - 1;
+              
+                if (!myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)))
+                    this.Location.X = MathHelper.Clamp(this.Location.X - (float)Math.Sin(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * tileSize);
+              
+                if (!myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)))
+                    this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapHeight - squaresDown) * tileSize);
             }
             /*
             if (ks.IsKeyDown(Keys.Left))
@@ -136,8 +154,9 @@ namespace Skulk
                 this.animationCount += 1;
                 this.Location.Y = MathHelper.Clamp(this.Location.Y + acceleration, 0, (myMap.MapHeight - squaresDown) * 64);
             }*/
-            xCount = (int)this.Location.X / 64 + squaresAcross / 2;
-            yCount = (int)this.Location.Y / 64 + squaresDown / 2;
+            xCount = (int)(this.Location.X -75) / tileSize + (squaresAcross ) / 2 ;
+            yCount = (int)(this.Location.Y-62) / tileSize + (squaresDown) / 2;
+            Console.WriteLine(xCount + " " + yCount);
             this.updateTilePosition(xCount, yCount);
             UpdateAnimation();
             base.Update(gameTime);
@@ -192,6 +211,7 @@ namespace Skulk
              this.map.mapCell[newX, newY].AddObject(this.objectID);
          }
 
+        
          
 
 	}

@@ -12,13 +12,14 @@ namespace Skulk
         Vector2 positionScore;
         Texture2D texture;
         string bestScore;
+        string outcome;
         
         public GameOverScreen(Game game)
 			:base(game)
 		{
 		}
 
-        public void initialize(Texture2D texture, SpriteFont font, int width, int height, string bestScore)
+        public void initialize(Texture2D texture, SpriteFont font, int width, int height, string bestScore, string outcome)
         {
             this.font = font;
             this.destination = new Rectangle(0, 0, width, height);
@@ -26,8 +27,11 @@ namespace Skulk
             this.position.Y = height / 2;
             this.texture = texture;
             this.bestScore = bestScore;
+            if (bestScore.Equals("9999999"))
+                this.bestScore = "No score";
             this.positionScore.X = this.position.X;
             this.positionScore.Y = this.position.Y + 50;
+            this.outcome = outcome;
         }
 
 
@@ -35,8 +39,8 @@ namespace Skulk
         {
            
                 spriteBatch.Draw(texture,destination, Color.Black);
-                Vector2 origin = new Vector2(font.MeasureString("Sorry Tim.").X / 2, font.MeasureString("Sorry Tim.").Y / 2);
-                spriteBatch.DrawString(font, "Sorry Tim.",position,Color.White, 0, origin,1,0,0 );
+                Vector2 origin = new Vector2(font.MeasureString(outcome).X / 2, font.MeasureString(outcome).Y / 2);
+                spriteBatch.DrawString(font, outcome,position,Color.White, 0, origin,1,0,0 );
 
                 origin = new Vector2(font.MeasureString("Best Score: " + bestScore).X / 2, font.MeasureString("Best Score: " + bestScore).Y / 2);
                 spriteBatch.DrawString(font, "Best Score: "+bestScore, positionScore, Color.White, 0, origin, 0.5f, 0, 0);
