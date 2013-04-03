@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
 
 
 namespace Skulk
@@ -21,18 +20,12 @@ namespace Skulk
         int moveByX;
         int speed;
 
-        Point moveTo;
-        Boolean ableToMove;
 
-        // For Guards and player interaction
-        LinkedList<Point> closedISeeYou;
-        public Boolean ISeeYou;
-        Boolean wait;
-        int waitTime;
-        Point lastSpot;
-        int time;
-        int timeAtGold;
-        ArrayList tilesInRange;
+        Point moveTo;
+
+        int length; // Patrol list length or to let it know to use pathfinder length
+        Boolean init;
+        Boolean ISeeYou;
 
         public Npc(Game game)
             : base(game)
@@ -56,18 +49,11 @@ namespace Skulk
             this.moveByX = speed;
             this.moveByY = speed;
 
-            this.itr = 0; //index of next tile to move to, guard initially drawn at tile 0 it patrolTiles, so start itr at 1
+            this.itr = 1; //index of next tile to move to, guard initially drawn at tile 0 it patrolTiles, so start itr at 1
             this.moveTo = new Point(-1, -1);
-            this.ableToMove = true;
+            this.length = 0;
+            this.init = true;
             this.ISeeYou = false;
-            this.wait = false;
-            this.waitTime = 0;
-            this.time = 1000;
-            this.timeAtGold = 0;
-            this.lastSpot = new Point(0, 0);
-            tilesInRange = new ArrayList();
-
-            closedISeeYou = new LinkedList<Point>();
 
             map.mapCell[x, y].AddObject(objectID);
 
@@ -80,86 +66,36 @@ namespace Skulk
         }
         public override void Update(GameTime gameTime)
         {
+            //Console.WriteLine("offsetx: " +originalOffsetX + " " + "offsety: "+originalOffsetY +" "+ "tilex: " + currentTile.X + "tiley: " + currentTile.Y +" "+ "destx: " + moveTo.X + " " + "desty: "+ moveTo.Y);
 
             Point goal = detectionCheck();
-            ableToMove = true;
+            //Console.WriteLine(goal.X + " " + goal.Y);
 
-            // If there is gold on the ground go to it and stop there for a few seconds
-            if (this.map.mapCell[currentTile.X, currentTile.Y].hasObject("Gold"))
+            // If the guard see's you it will create it's own path, otherwise use it's set path
+            if (ISeeYou)
             {
-                timeAtGold += gameTime.ElapsedGameTime.Milliseconds;
-                if (timeAtGold > 3000)
-                {
-                    this.map.mapCell[currentTile.X, currentTile.Y].RemoveObject("Gold");
-                    this.map.mapCell[currentTile.X, currentTile.Y].RemoveBaseTile(227);
-                    timeAtGold = 0;
-                }
-                ableToMove = false;
+                length = 2;
+                moveTo = pathFinder(currentTile, goal);
             }
-            // If guard lost the player/prisoner then go to last seen place and look around
-            else if (wait)
+            else // Patrol
             {
-                if (currentTile.X == lastSpot.X && currentTile.Y == lastSpot.Y)
+
+                if (patrolTiles.Length > 1)
                 {
-                    ableToMove = false;
-                    waitTime = waitTime + gameTime.ElapsedGameTime.Milliseconds;
-                    if (time >= 6000)
-                    {
-                        time = 1000;
-                        wait = false;
-                        waitTime = 0;
-                        lastSpot.X = 0;
-                        lastSpot.Y = 0;
-                    }
-                    else if (waitTime >= time)
-                    {
-                        this.rotation = this.rotation + (float)Math.PI / 2;
-                        this.time = time + 1000;
-                    }
+                    moveTo = pathFinder(currentTile, patrolTiles[itr]);
+                    length = patrolTiles.Length;
                 }
                 else
                 {
-                    goal = lastSpot;
-                }
-            }
-            // If the guard see's you then find the shortest distance to the play/prisoner and follow them    
-            else if (ISeeYou)
-            {
-                timeAtGold = 0;
-                if (!map.mapCell[currentTile.X, currentTile.Y].hasObject("Gold"))
-                {
-                    if (currentTile.X == moveTo.X && currentTile.Y == moveTo.Y)
-                    {
-                        this.originalOffsetX += moveByX;
-                        this.originalOffsetY += moveByY;
-                    }
-                }
-                else
-                {
-                    ableToMove = false;
-                }
-
-            }
-            // If none of the conditions above are true then go to set path, Patrol the area
-            else
-            {
-
-                if (patrolTiles.Length == 1)
-                {
+                    moveTo = pathFinder(currentTile, patrolTiles[0]);
                     if ((currentTile.X == patrolTiles[0].X) && (currentTile.Y == patrolTiles[0].Y))
                     {
-                        ableToMove = false;
+                        length = patrolTiles.Length;
                     }
                 }
 
-                goal = patrolTiles[itr];
             }
-
-            // Gets the next position to move to
-            moveTo = pathFinder(currentTile, goal);
-
-            // Only if the guard/prisoner is moving
-            if (ableToMove)
+            if (length > 1)
             {
                 if (moveTo.Y - currentTile.Y > 0)//moving down
                 {
@@ -203,7 +139,42 @@ namespace Skulk
                         this.rotation = 3 * (float)Math.PI / 4;
                 }
 
-                if (currentTile.X != moveTo.X || currentTile.Y != moveTo.Y)
+                if (currentTile.X == moveTo.X && currentTile.Y == moveTo.Y)
+                {
+                    /*
+                    if ((moveByX > 0 && originalOffsetX >= 64) || (moveByX < 0 && originalOffsetX <= 0))
+                    {
+                        //do nothing 
+                    }
+                    else
+                        this.originalOffsetX += moveByX;
+                     * */
+                    if (!ISeeYou)
+                    {
+                        itr++;
+                        if (itr >= patrolTiles.Length)
+                            itr = 0;
+
+                        if (patrolTiles.Length > 1)
+                        {
+                            moveTo = pathFinder(currentTile, patrolTiles[itr]);
+                            length = patrolTiles.Length;
+                        }
+                        else
+                        {
+                            moveTo = pathFinder(currentTile, patrolTiles[0]);
+                            if ((currentTile.X == patrolTiles[0].X) && (currentTile.Y == patrolTiles[0].Y))
+                            {
+                                length = patrolTiles.Length;
+                            }
+                        }
+                    }
+                    else
+                        moveTo = pathFinder(currentTile, goal);
+
+
+                }
+                else //update positions
                 {
                     if (currentTile.Y != moveTo.Y)
                     {
@@ -249,21 +220,10 @@ namespace Skulk
                         }
                     }
                 }
-                else if (currentTile.X == moveTo.X && currentTile.Y == moveTo.Y)
-                {
-                    // For the patrol, only increment to next position if it made it to the next tile
-                    if (!ISeeYou)
-                    {
-                        itr++;
-                        if (itr >= patrolTiles.Length)
-                            itr = 0;
-                    }
-                }
 
-                this.animationCount += 1;
-                this.UpdateAnimation();
             }
-
+            this.animationCount += 1;
+            this.UpdateAnimation();
             base.Update(gameTime);
         }
 
@@ -301,14 +261,14 @@ namespace Skulk
                        source,
                        Color.Black
                        );*/
-
+                
 
             }
 
         }
 
 
-
+       
         public void UpdateAnimation()
         {
 
@@ -327,21 +287,14 @@ namespace Skulk
 
         public Point pathFinder(Point start, Point goal)
         {
-            // if there the same skip everything and return
-            if ((goal.X == start.X) && (goal.Y == start.Y))
+
+            if ((start.X == goal.X) && (start.Y == goal.Y))
             {
                 return goal;
             }
 
-            // Clear out the closed list for finding a way back to patrol point, don't need it if the guard is going to be somewhere else
-            if (ISeeYou)
-            {
-                closedISeeYou.Clear();
-            }
-
-
             LinkedList<Point> openset = new LinkedList<Point>();
-            LinkedList<Point> closedset = map.obstacleTiles;
+            LinkedList<Point> closedset = new LinkedList<Point>();
 
             Point current;
 
@@ -361,18 +314,14 @@ namespace Skulk
                 // Checks if the neighbor is in the closedset (Walls, etc)
                 if (closedset.Contains(neighbor))
                 {
-                    // Skip
+                    // Skip it
                 }
                 else if (!openset.Contains(neighbor))
                 {
-                    // For finding his way back home
-                    if (closedISeeYou.Contains(neighbor) && (!ISeeYou))
+                    f_score[neighbor] = heuristicCostEstimate(neighbor, goal);
+
+                    if (!openset.Contains(neighbor))
                     {
-                        // Skip
-                    }
-                    else
-                    {
-                        f_score[neighbor] = heuristicCostEstimate(neighbor, goal);
                         openset.AddLast(neighbor);
                     }
                 }
@@ -384,42 +333,28 @@ namespace Skulk
             foreach (Point score in openset)
             {
                 int check = (int)f_score[score];
-
-
-                if (check == 0)
-                {
-                    closedISeeYou.Clear();
-                    return goal;
-                }
-                else if (check < lowest)
+                if (check < lowest)
                 {
                     lowest = check;
                     current = score;
                 }
-
-                // Randomize direction for going around objects????? Not working
-                /*else if (check == lowest)
-                {
-                    Random rand = new Random();
-                    int coin = rand.Next(-10, 10);
-                    Console.WriteLine(coin + "******************");
-                    if (coin <= 0)
-                    {
-                        current = score;
-                    }
-                }*/
             }
 
-            if ((current.X == start.X) && (current.Y == start.Y))
+            if ((current.X == goal.X) && (current.Y == goal.Y))
             {
-                closedISeeYou.AddLast(current);
-                return pathFinder(start, goal);
+                return goal;
             }
-            else
-            {
-                return current;
-            }
+
+            openset.Remove(current);
+            closedset.AddLast(current);
+
+            return current;
         }
+
+
+
+
+
 
 
         /**
@@ -429,7 +364,6 @@ namespace Skulk
         public LinkedList<Point> find_neighbors(Point current)
         {
             LinkedList<Point> neighbor = new LinkedList<Point>();
-            neighbor.AddLast(new Point(current.X, current.Y));
             neighbor.AddLast(new Point(current.X + 1, current.Y));
             neighbor.AddLast(new Point(current.X, current.Y + 1));
             neighbor.AddLast(new Point(current.X - 1, current.Y));
@@ -443,8 +377,9 @@ namespace Skulk
         }
 
         /**
-        * Calculates the distance between the guard and player/prisoner
-        */
+* Calculates the distance between the guard and player
+*
+*/
         public int heuristicCostEstimate(Point start, Point goal)
         {
             int x = start.X - goal.X;
@@ -457,203 +392,76 @@ namespace Skulk
 
         public Point detectionCheck()
         {
-           
-            tilesInRange.Clear();
+            ArrayList tilesInRange = new ArrayList();
 
-            int lookAhead = 4;
-            int lookAcross = 2;//each way (left/right)
-
-            if (rotation == 0) //down
+            if (rotation == 0)
             {
-                for (int i = (lookAcross * -1); i <= lookAcross; i++)
+                for (int i = 0; i <= 4; i++)
                 {
-                    for (int j = 0; j <= lookAhead; j++)
+                    for (int j = -3; j <= 3; j++)
                     {
-                        if (map.obstacleTiles.Contains(new Point(currentTile.X + i, currentTile.Y + j)))
-                        {
-                            break;
-                        }
-                        else
-                            tilesInRange.Add(new Point(currentTile.X + i, currentTile.Y + j));
+                        tilesInRange.Add(new Point(currentTile.X + j, currentTile.Y + i));
                     }
                 }
             }
 
-            else if (rotation == (float)Math.PI) //up
+            else if (rotation == (float)Math.PI)
             {
-                for (int i = (lookAcross * -1); i <= lookAcross; i++)
-                {
-                    for (int j = 0; j <= lookAhead; j++)
-                    {
-                        if (map.obstacleTiles.Contains(new Point(currentTile.X + i, currentTile.Y - j)))
-                        {
-                            break;
-                        }
-                        else
-                            tilesInRange.Add(new Point(currentTile.X + i, currentTile.Y - j));
-                    }
-                }
+                for (int i = 0; i <= 4; i++)
+                    for (int j = -3; j <= 3; j++)
+                        tilesInRange.Add(new Point(currentTile.X + j, currentTile.Y - i));
             }
 
-            else if (rotation == 3 * (float)Math.PI / 2) //right
+            else if (rotation == 3 * (float)Math.PI / 2)
             {
 
-                for (int i = (lookAcross * -1); i <= lookAcross; i++)
-                {
-                    for (int j = 0; j <= lookAhead; j++)
-                    {
-                        if (map.obstacleTiles.Contains(new Point(currentTile.X + j, currentTile.Y + i)))
-                        {
-                            break;
-                        }
-                        else
-                            tilesInRange.Add(new Point(currentTile.X + j, currentTile.Y + i));
-                    }
-                }
+                for (int i = 0; i <= 4; i++)
+                    for (int j = -3; j <= 3; j++)
+                        tilesInRange.Add(new Point(currentTile.X + i, currentTile.Y + j));
             }
-            else if (rotation == (float)Math.PI / 2) //left
+            else if (rotation == (float)Math.PI / 2)
             {
-                for (int i = (lookAcross * -1); i <= lookAcross; i++)
-                {
-                    for (int j = 0; j <= lookAhead; j++)
-                    {
-                        if (map.obstacleTiles.Contains(new Point(currentTile.X - j, currentTile.Y + i)))
-                        {
-                            break;
-                        }
-                        else
-                            tilesInRange.Add(new Point(currentTile.X - j, currentTile.Y + i));
-                    }
-                }
+                for (int i = 0; i <= 4; i++)
+                    for (int j = -3; j <= 3; j++)
+                        tilesInRange.Add(new Point(currentTile.X - i, currentTile.Y + j));
             }
             else if (rotation == (float)Math.PI / 4)
             {
-                for (int i = 0; i <= lookAhead; i++)
-                {
-                    for (int j = 0; j <= lookAhead; j++)
-                    {
-                        if (map.obstacleTiles.Contains(new Point(currentTile.X - j, currentTile.Y + i)))
-                            break;
-                        else
-                            tilesInRange.Add(new Point(currentTile.X - j, currentTile.Y + i));
-                    }
-                }
+                for (int i = 0; i <= 4; i++)
+                    for (int j = 0; j <= 4; j++)
+                        tilesInRange.Add(new Point(currentTile.X - j, currentTile.Y + i));
 
             }
             else if (rotation == 3 * (float)Math.PI / 4)
             {
-                for (int i = 0; i <= lookAhead; i++)
-                {
-                    for (int j = 0; j <= lookAhead; j++)
-                    {
-                        if (map.obstacleTiles.Contains(new Point(currentTile.X - j, currentTile.Y - i)))
-                            break;
-                        else
-                            tilesInRange.Add(new Point(currentTile.X - j, currentTile.Y - i));
-                    }
-                }
+                for (int i = 0; i <= 4; i++)
+                    for (int j = 0; j <= 4; j++)
+                        tilesInRange.Add(new Point(currentTile.X - j, currentTile.Y - i));
             }
             else if (rotation == 5 * (float)Math.PI / 4)
             {
-                for (int i = 0; i <= lookAhead; i++)
-                {
-                    for (int j = 0; j <= lookAhead; j++)
-                    {
-                        if (map.obstacleTiles.Contains(new Point(currentTile.X + j, currentTile.Y - i)))
-                            break;
-                        else
-                            tilesInRange.Add(new Point(currentTile.X + j, currentTile.Y - i));
-                    }
-                }
+                for (int i = 0; i <= 4; i++)
+                    for (int j = 0; j <= 4; j++)
+                        tilesInRange.Add(new Point(currentTile.X + j, currentTile.Y - i));
             }
             else if (rotation == 7 * (float)Math.PI / 4)
             {
-                for (int i = 0; i <= lookAhead; i++)
-                {
-                    for (int j = 0; j <= lookAhead; j++)
-                    {
-                        if (map.obstacleTiles.Contains(new Point(currentTile.X + j, currentTile.Y + i)))
-                            break;
-                        else
-                            tilesInRange.Add(new Point(currentTile.X + j, currentTile.Y + i));
-                    }
-                }
+                for (int i = 0; i <= 4; i++)
+                    for (int j = 0; j <= 4; j++)
+                        tilesInRange.Add(new Point(currentTile.X + j, currentTile.Y + i));
             }
 
-
-            // If the guard is following the player/prisoner, get ready to go to last point and look around (if loosing them)
-            if (ISeeYou)
-            {
-                wait = true;
-            }
             ISeeYou = false;
-            Point point = currentTile;
-            Hashtable f_score = new Hashtable();
-            LinkedList<Point> closestList = new LinkedList<Point>();
-
-            // Goes through the detection list to see if gold, player, or prisoner is seen
             foreach (Point p in tilesInRange)
             {
-               // map.mapCell[p.X, p.Y].AddBaseTile(229);
-                if (this.map.mapCell[p.X, p.Y].hasObject("Gold"))
+                if (this.map.mapCell[p.X, p.Y].hasObject("Player"))
                 {
+                    Console.WriteLine("true");
                     ISeeYou = true;
-                    wait = false;
-                    lastSpot.X = 0;
-                    lastSpot.Y = 0;
-                    point.X = p.X;
-                    point.Y = p.Y;
-                    break;
-                }
-                else if (this.map.mapCell[p.X, p.Y].hasObject("Player"))
-                {
-                    ISeeYou = true;
-                    wait = false;
-                    lastSpot.X = 0;
-                    lastSpot.Y = 0;
-                    point.X = p.X;
-                    point.Y = p.Y;
-                    // Calculation for the distance between guard and player/prisoner
-                    f_score[point] = heuristicCostEstimate(currentTile, point);
-                    closestList.AddLast(point);
-                }
-                else if (this.map.mapCell[p.X, p.Y].hasObject("Prisoner"))
-                {
-                    ISeeYou = true;
-                    wait = false;
-                    lastSpot.X = 0;
-                    lastSpot.Y = 0;
-                    point.X = p.X;
-                    point.Y = p.Y;
-                    // Calculation for the distance between guard and player/prisoner
-                    f_score[point] = heuristicCostEstimate(currentTile, point);
-                    closestList.AddLast(point);
+                    return new Point(p.X, p.Y);
                 }
             }
-
-            if (!this.map.mapCell[point.X, point.Y].hasObject("Gold"))
-            {
-                // Checks which object is closer to the guard, Player or Prisoner, and return the closest point
-                int lowest = 9999;
-                foreach (Point score in closestList)
-                {
-                    int check = (int)f_score[score];
-
-                    if (check < lowest)
-                    {
-                        lowest = check;
-                        point = score;
-                    }
-                }
-            }
-
-            // Sets the last point, where the guard seen the player/prisoner
-            if (lastSpot.X == 0 && lastSpot.Y == 0)
-            {
-                lastSpot = point;
-            }
-
-            return point;
+            return new Point(-1, -1);
         }
     }
 }

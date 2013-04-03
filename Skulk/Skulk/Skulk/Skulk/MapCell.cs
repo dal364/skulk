@@ -24,13 +24,8 @@ namespace Skulk
 
 		public void AddBaseTile(int tileID)
 		{
-		    BaseTiles.Add(tileID - 1);
+		    BaseTiles.Add(tileID);
 		}
-
-        public void RemoveBaseTile(int tileID)
-        {
-            BaseTiles.Remove(tileID);
-        }
 
 		public void AddObject(string objectID)
 		{

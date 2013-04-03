@@ -15,22 +15,15 @@ namespace Skulk
 
         public LinkedList<Point> obstacleTiles; //tiles that can not be walked on
 
-        public TileMap(int lvl, int map)
+        public TileMap()
         {
             obstacleTiles = new LinkedList<Point>();
-            //parse spreadsheets for tiles
-            TextReader tr = new StreamReader("lvl"+ lvl + "map" + map + "layer1" + ".csv");
-            TextReader hr = new StreamReader("lvl"+ lvl + "map" + map + "layer1" + ".csv");
-
-            TextReader obstacleTr = new StreamReader("lvl"+ lvl + "map" + map + "layer2" + ".csv");
-            TextReader obstacleHr = new StreamReader("lvl"+ lvl + "map" + map + "layer2" + ".csv");
-
+            //parse spreadsheet for tiles
+            TextReader tr = new StreamReader("map.csv");
+            TextReader hr = new StreamReader("map.csv");
             String mapLine = tr.ReadLine();
-
-            String mapLineObstacle = obstacleTr.ReadLine();
-
             MapHeight = hr.ReadToEnd().Split('\n').Length - 1;
-            MapWidth = mapLine.Split(',').Length;
+            MapWidth = mapLine.Split(';').Length;
 
             mapCell = new MapCell[MapWidth, MapHeight];
 
@@ -40,24 +33,17 @@ namespace Skulk
                 for (int x = 0; x < MapWidth; x++)
                 {
 
-                    this.mapCell[x, y] = new MapCell(Convert.ToInt32(mapLine.Split(',')[x]));
-                    this.mapCell[x, y].AddBaseTile(Convert.ToInt32(mapLineObstacle.Split(',')[x]));
-                 
+                    this.mapCell[x, y] = new MapCell(Convert.ToInt32(mapLine.Split(';')[x]));
 
-                    if (Convert.ToInt32(mapLineObstacle.Split(',')[x]) != 0)//integer corresponding to walls or boxes,etc
+                    if (Convert.ToInt32(mapLine.Split(';')[x]) == 7)//integer corresponding to walls or boxes,etc
                     {
                         obstacleTiles.AddFirst(new Point(x, y));
                     }
                 }
                 mapLine = tr.ReadLine();
-                mapLineObstacle = obstacleTr.ReadLine();
             }
             tr.Close();
             hr.Close();
-            obstacleHr.Close();
-            obstacleTr.Close();
-            Console.WriteLine(MapHeight);
-
         }
     }
 
