@@ -92,7 +92,6 @@ namespace Skulk
                 {
                     this.map.mapCell[currentTile.X, currentTile.Y].RemoveObject("Gold");
                     this.map.mapCell[currentTile.X, currentTile.Y].RemoveBaseTile(229);
-
                     timeAtGold = 0;
                 }
                 ableToMove = false;

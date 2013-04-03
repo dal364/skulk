@@ -2,7 +2,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Audio;
 
 namespace Skulk
 {
@@ -12,7 +11,6 @@ namespace Skulk
         public Vector2 Location = Vector2.Zero;
         public Rectangle boundingBox;
 		public Texture2D texture;
-        SoundEffect coinSound;
 
         public int numGold;
         bool goldKeyPressed;
@@ -24,7 +22,7 @@ namespace Skulk
 		Rectangle source;
 
         Vector2 position;
-		float rotation;
+		public float rotation;
 
 		int frameCount = 0; // Which frame we are.  Values = {0, 1, 2}
         int frameSkipY = 64; // How much to move the frame in X when we increment a frame--X distance between top left corners.
@@ -46,17 +44,17 @@ namespace Skulk
         protected string objectID;
 
         protected TileMap map;
-     
+
+        Vector2 whereOnTile;
 
 		public Player (Game game)
 			:base(game)
 		{
 		}
 
-        public void initialize(Vector2 position, float rotation, Texture2D texture,SoundEffect coinSound, int tileX, int tileY, string objectID, TileMap map)
+        public void initialize(Vector2 position, float rotation, Texture2D texture, int tileX, int tileY, string objectID, TileMap map)
         {
             this.texture = texture;
-            this.coinSound = coinSound;
             this.animationCount = 0;
             this.objectID = objectID;
             this.map = map;
@@ -68,6 +66,8 @@ namespace Skulk
             this.numGold = 3;
             this.goldKeyPressed = false;
             this.rotation = rotation;
+            this.whereOnTile.Y = Location.Y % tileSize;
+            this.whereOnTile.X = Location.X % tileSize;
             
             
             this.map.mapCell[tileX, tileY].AddObject(objectID);
@@ -122,7 +122,7 @@ namespace Skulk
             if (direction.X < 0)
                 nextTileX = tileX - 1;
             if (direction.X > 0)
-                nextTileX = tileX ;
+                nextTileX = tileX + 1;
             if (direction.Y > 0)
                 nextTileY = tileY + 1;
             if (direction.Y < 0)
@@ -134,12 +134,23 @@ namespace Skulk
             {
                 this.animationCount += 1;
 
-             
+         
 
                if (!myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)))
                     this.Location.X = MathHelper.Clamp(this.Location.X - (float)Math.Sin(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * tileSize);
                if (!myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)))
                    this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapHeight - squaresDown) * tileSize);
+               
+               if (myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)) && direction.Y > 0)
+               {
+                  if(whereOnTile.Y < 60)
+                   this.Location.Y += acceleration;
+               }
+               if (myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)) && direction.X > 0)
+               {
+                   if (whereOnTile.X < 60)
+                       this.Location.X += acceleration;
+               }
             }
             /*
             if (ks.IsKeyDown(Keys.Left))
@@ -177,8 +188,8 @@ namespace Skulk
                 {
                     myMap.mapCell[tileX, tileY].AddBaseTile(229);
                     myMap.mapCell[tileX, tileY].AddObject("Gold");
+                    sound.coinSound.Play();
                     numGold--;
-                    coinSound.Play();
                     goldKeyPressed = true;
                 }
             }
@@ -209,6 +220,7 @@ namespace Skulk
             //Console.WriteLine(this.destination.X + ", " + this.destination.Y);
 
             spritebatch.Draw(texture, this.destination, this.source, Color.White, this.rotation, origin, SpriteEffects.None, 0);
+
             //boundingBox Debug
             /*spritebatch.Draw(
                         texture,
@@ -246,8 +258,12 @@ namespace Skulk
              this.tileX = newX;
              this.tileY = newY;
              this.map.mapCell[newX, newY].AddObject(this.objectID);
+             this.whereOnTile.Y = Location.Y % tileSize;
+             this.whereOnTile.X = Location.X % tileSize;
+
          }
 
+        
         
          
 

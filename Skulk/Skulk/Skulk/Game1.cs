@@ -33,7 +33,7 @@ namespace Skulk
 		Player player;
         Vector2 start;
         Texture2D timTexture;
-        SoundEffect coinSound;
+       
 		
         GameOverScreen gameOver;
         SpriteFont gameOverFont;
@@ -46,6 +46,7 @@ namespace Skulk
         public int tileSize = 64;
         Texture2D minimap;
         Texture2D dot;
+        Texture2D arrow;
 
         //Levels
    
@@ -105,7 +106,7 @@ namespace Skulk
             //Audio
             sound.normalMusic = Content.Load<Song>("hero");
             sound.Alert = Content.Load<Song>("emergence");
-            this.coinSound = Content.Load<SoundEffect>("coinbag");
+            sound.coinSound = Content.Load<SoundEffect>("coinbag");
 
             SpriteFont font = Content.Load<SpriteFont>("SpriteFont1");
             blackTexture = new Texture2D(GraphicsDevice, 1, 1);
@@ -132,6 +133,7 @@ namespace Skulk
             drawnRectangles = new Rectangle[squaresAcross, squaresDown];
             dot = Content.Load<Texture2D>("whitedot");
             minimap = Content.Load<Texture2D>("minimap");
+            arrow = Content.Load<Texture2D>("arrow");
 
             //Load guards
             loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1)  + "guards.csv");
@@ -140,7 +142,7 @@ namespace Skulk
 		    start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			timTexture = Content.Load<Texture2D>("sprite");
 			player = new Player(this);
-            player.initialize(start, (float)Math.PI, timTexture,coinSound,currentLevel.start[0].X,currentLevel.start[0].Y, "Player", currentLevel.currentMap);
+            player.initialize(start, (float)Math.PI, timTexture,currentLevel.start[0].X,currentLevel.start[0].Y, "Player", currentLevel.currentMap);
 			
 			base.Initialize ();
 				
@@ -259,7 +261,7 @@ namespace Skulk
                         currentLevel.currentGoal = currentLevel.goal[currentLevel.currentMapIndex];
 
                         int currNumGold = player.numGold;
-                        player.initialize(start, 0, timTexture,coinSound, currentLevel.start[currentLevel.currentMapIndex].X, currentLevel.start[currentLevel.currentMapIndex].Y, "Player", currentLevel.currentMap);
+                        player.initialize(start, 0, timTexture, currentLevel.start[currentLevel.currentMapIndex].X, currentLevel.start[currentLevel.currentMapIndex].Y, "Player", currentLevel.currentMap);
                         player.numGold = currNumGold;
                       //  player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
                         //player.Location.Y = currentLevel.start[currentLevel.currentMapIndex].Y * tileSize - (4 * tileSize);
@@ -361,19 +363,16 @@ namespace Skulk
 
             //MINI MAP
             spriteBatch.Draw(minimap, new Rectangle(GraphicsDevice.Viewport.Width - 128, -15, 128, 128), Color.White);
-            spriteBatch.Draw(dot, new Rectangle(GraphicsDevice.Viewport.Width - 64 -4, 64-15-4, 8, 8), Color.Blue);
-            for (int y = 0; y < currentLevel.currentMap.MapHeight; y++)
-            {
-                for (int x = 0; x < currentLevel.currentMap.MapWidth; x++)
-                {
+            Vector2 origin = new Vector2(4, 4);
+            spriteBatch.Draw(arrow, new Rectangle(GraphicsDevice.Viewport.Width - 64 -4, 64-15-4, 8, 8), null, Color.Blue, player.rotation, origin, SpriteEffects.None, 0);
+          //  spriteBatch.Draw(dot, new Rectangle(GraphicsDevice.Viewport.Width - 64 -4, 64-15-4, 8, 8), Color.Blue);
+
                     foreach (Npc guard in currentLevel.guards[currentLevel.currentMapIndex])
                     {
                         if (player.tileY - guard.currentTile.Y < 10 && guard.currentTile.Y - player.tileY < 10 && player.tileX - guard.currentTile.X < 12 && guard.currentTile.X - player.tileX < 12)
                             spriteBatch.Draw(dot, new Rectangle((GraphicsDevice.Viewport.Width - 128 + guard.currentTile.X * 4 ) - ((int)player.Location.X/16 -32), (guard.currentTile.Y * 4) - ((int)player.Location.Y/16 - 32), 8, 8), Color.Red);
                     }
-                }
-            }
-
+             
             if (gameState == GameState.Over)
             {
 
