@@ -30,12 +30,10 @@ namespace Skulk
 		SpriteBatch spriteBatch;
         Texture2D blackTexture;
 
-
-        
-
 		Player player;
         Vector2 start;
         Texture2D timTexture;
+        SoundEffect coinSound;
 		
         GameOverScreen gameOver;
         SpriteFont gameOverFont;
@@ -107,6 +105,7 @@ namespace Skulk
             //Audio
             sound.normalMusic = Content.Load<Song>("hero");
             sound.Alert = Content.Load<Song>("emergence");
+            this.coinSound = Content.Load<SoundEffect>("coinbag");
 
             SpriteFont font = Content.Load<SpriteFont>("SpriteFont1");
             blackTexture = new Texture2D(GraphicsDevice, 1, 1);
@@ -141,7 +140,7 @@ namespace Skulk
 		    start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			timTexture = Content.Load<Texture2D>("sprite");
 			player = new Player(this);
-            player.initialize(start, (float)Math.PI, timTexture,currentLevel.start[0].X,currentLevel.start[0].Y, "Player", currentLevel.currentMap);
+            player.initialize(start, (float)Math.PI, timTexture,coinSound,currentLevel.start[0].X,currentLevel.start[0].Y, "Player", currentLevel.currentMap);
 			
 			base.Initialize ();
 				
@@ -260,7 +259,7 @@ namespace Skulk
                         currentLevel.currentGoal = currentLevel.goal[currentLevel.currentMapIndex];
 
                         int currNumGold = player.numGold;
-                        player.initialize(start, 0, timTexture, currentLevel.start[currentLevel.currentMapIndex].X, currentLevel.start[currentLevel.currentMapIndex].Y, "Player", currentLevel.currentMap);
+                        player.initialize(start, 0, timTexture,coinSound, currentLevel.start[currentLevel.currentMapIndex].X, currentLevel.start[currentLevel.currentMapIndex].Y, "Player", currentLevel.currentMap);
                         player.numGold = currNumGold;
                       //  player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
                         //player.Location.Y = currentLevel.start[currentLevel.currentMapIndex].Y * tileSize - (4 * tileSize);

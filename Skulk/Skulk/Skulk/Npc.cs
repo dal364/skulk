@@ -88,7 +88,7 @@ namespace Skulk
             if (this.map.mapCell[currentTile.X, currentTile.Y].hasObject("Gold"))
             {
                 timeAtGold += gameTime.ElapsedGameTime.Milliseconds;
-                if (timeAtGold > 3000)
+                if (timeAtGold > 1500)
                 {
                     this.map.mapCell[currentTile.X, currentTile.Y].RemoveObject("Gold");
                     this.map.mapCell[currentTile.X, currentTile.Y].RemoveBaseTile(227);
