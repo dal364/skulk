@@ -60,10 +60,11 @@ namespace Skulk
             this.tileX = tileX;
             this.tileY = tileY;
             this.position = position;
-            this.Location.X = tileSize * tileX;
-            this.Location.Y = tileSize * tileY;
+            this.Location.X = tileSize * tileX - (6 * tileSize);
+            this.Location.Y = tileSize * tileY - (4 * tileSize);
             this.numGold = 3;
             this.goldKeyPressed = false;
+            this.rotation = rotation;
             
             
             this.map.mapCell[tileX, tileY].AddObject(objectID);

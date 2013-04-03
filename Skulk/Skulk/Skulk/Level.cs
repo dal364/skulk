@@ -16,10 +16,11 @@ namespace Skulk
         public Point currentGoal;
         public Point[] start;
         public ArrayList[] guards;
+        public int winGoal; // winning door index
         public Point[] itemLocation;
         
 
-        public Level(TileMap[] maps, Point[] goal, Point[] start, int mapIndex)
+        public Level(TileMap[] maps, Point[] goal, Point[] start, int mapIndex, int win)
         {
             this.currentMapIndex = mapIndex;
             this.maps = maps;
@@ -28,6 +29,7 @@ namespace Skulk
             currentGoal = this.goal[mapIndex];
             this.start = start;
             guards = new ArrayList[maps.Length];
+            this.winGoal = win;
         }
 
         public void initiailizeGuards(ArrayList arr)

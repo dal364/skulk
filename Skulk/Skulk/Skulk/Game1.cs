@@ -93,12 +93,14 @@ namespace Skulk
             Point[] goal = new Point[2];
             goal[0].X = 25;
             goal[0].Y = 4;
+            goal[1].X = 39;
+            goal[1].Y = 4;
             Point[] starts = new Point[2];
-            starts[0].X = 7;
-            starts[0].Y = 15;
+            starts[0].X = 11;
+            starts[0].Y = 21;
             starts[1].X = 10;
-            starts[1].Y = 14;
-            currentLevel = new Level(lvl1 , goal, starts, 0);
+            starts[1].Y = 13;
+            currentLevel = new Level(lvl1 , goal, starts, 0,2);
           
 
             
@@ -139,7 +141,7 @@ namespace Skulk
 		    start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			timTexture = Content.Load<Texture2D>("sprite");
 			player = new Player(this);
-            player.initialize(start, 0, timTexture,currentLevel.start[0].X,currentLevel.start[0].Y, "Player", currentLevel.currentMap);
+            player.initialize(start, (float)Math.PI, timTexture,currentLevel.start[0].X,currentLevel.start[0].Y, "Player", currentLevel.currentMap);
 			
 			base.Initialize ();
 				
@@ -251,26 +253,29 @@ namespace Skulk
                             MediaPlayer.Play(sound.Alert);
                     }
 
-                    if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y)
+                    if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y && currentLevel.currentMapIndex + 1 < currentLevel.winGoal)
                     {
                         currentLevel.currentMapIndex++;
                         currentLevel.currentMap = currentLevel.maps[currentLevel.currentMapIndex];
-                        
+                        currentLevel.currentGoal = currentLevel.goal[currentLevel.currentMapIndex];
 
                         int currNumGold = player.numGold;
-                        player.initialize(start, 0, timTexture, currentLevel.start[0].X, currentLevel.start[0].Y, "Player", currentLevel.currentMap);
+                        player.initialize(start, 0, timTexture, currentLevel.start[currentLevel.currentMapIndex].X, currentLevel.start[currentLevel.currentMapIndex].Y, "Player", currentLevel.currentMap);
                         player.numGold = currNumGold;
-                        player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
-                        player.Location.Y = currentLevel.start[currentLevel.currentMapIndex].Y * tileSize - (4 * tileSize);
+                      //  player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
+                        //player.Location.Y = currentLevel.start[currentLevel.currentMapIndex].Y * tileSize - (4 * tileSize);
 
                         loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1) + "guards.csv");
  
-                       /* gameOver = new GameOverScreen(this);
+                    }
+                    else if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y && currentLevel.currentMapIndex + 1 == currentLevel.winGoal)
+                    {
+                        gameOver = new GameOverScreen(this);
                         int score = ((int)hud.timer / 1000);
                         if (score < bestScore)
                             bestScore = score;
                         gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Congratulations");
-                        gameState = GameState.Over;*/
+                        gameState = GameState.Over;
                     }
                     hud.Update(gameTime);
                 }
@@ -302,8 +307,8 @@ namespace Skulk
 			spriteBatch.Begin ();
 
             Vector2 firstSquare = new Vector2(player.Location.X / tileSize, player.Location.Y / tileSize);
-			int firstX = (int)firstSquare.X;
-			int firstY = (int)firstSquare.Y;
+			int firstX = (int)firstSquare.X ;
+			int firstY = (int)firstSquare.Y ;
 
             Vector2 squareOffset = new Vector2(player.Location.X % tileSize, player.Location.Y % tileSize);
 			int offsetX = (int)squareOffset.X;
@@ -391,7 +396,7 @@ namespace Skulk
          * */
         public void loadGuards(string csv)
         {
-            
+            currentLevel.initiailizeGuards(new ArrayList());
             Texture2D guardTexture = Content.Load<Texture2D>("guard");
             TextReader gr = new StreamReader(csv);
             TextReader nr = new StreamReader(csv);
@@ -412,7 +417,7 @@ namespace Skulk
                     patrolPoints[j] = new Point(posX, posy);
 
                 }
-                currentLevel.initiailizeGuards(new ArrayList());
+              
                 Npc guard = new Npc(this);
                 guard.initialize(currentLevel.currentMap, patrolPoints[0].X, patrolPoints[0].Y, 0, 0, guardTexture, "guard" + i, patrolPoints, speed);
                 currentLevel.guards[currentLevel.currentMapIndex].Add(guard);
