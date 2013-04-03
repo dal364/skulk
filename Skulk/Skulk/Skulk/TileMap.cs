@@ -15,15 +15,15 @@ namespace Skulk
 
         public LinkedList<Point> obstacleTiles; //tiles that can not be walked on
 
-        public TileMap()
+        public TileMap(int lvl, int map)
         {
             obstacleTiles = new LinkedList<Point>();
             //parse spreadsheets for tiles
-            TextReader tr = new StreamReader("map.csv");
-            TextReader hr = new StreamReader("map.csv");
+            TextReader tr = new StreamReader("lvl"+ lvl + "map" + map + "layer1" + ".csv");
+            TextReader hr = new StreamReader("lvl"+ lvl + "map" + map + "layer1" + ".csv");
 
-            TextReader obstacleTr = new StreamReader("obstacle.csv");
-            TextReader obstacleHr = new StreamReader("obstacle.csv");
+            TextReader obstacleTr = new StreamReader("lvl"+ lvl + "map" + map + "layer2" + ".csv");
+            TextReader obstacleHr = new StreamReader("lvl"+ lvl + "map" + map + "layer2" + ".csv");
 
             String mapLine = tr.ReadLine();
 

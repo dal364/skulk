@@ -7,9 +7,13 @@ namespace Skulk
 {
 	public class Player : GameComponent
 	{
+       
         public Vector2 Location = Vector2.Zero;
         public Rectangle boundingBox;
 		public Texture2D texture;
+
+        public int numGold;
+        bool goldKeyPressed;
 
         float acceleration = 2;
 
@@ -40,7 +44,7 @@ namespace Skulk
         protected string objectID;
 
         protected TileMap map;
-
+     
 
 		public Player (Game game)
 			:base(game)
@@ -58,7 +62,8 @@ namespace Skulk
             this.position = position;
             this.Location.X = tileSize * tileX;
             this.Location.Y = tileSize * tileY;
-            
+            this.numGold = 3;
+            this.goldKeyPressed = false;
             
             
             this.map.mapCell[tileX, tileY].AddObject(objectID);
@@ -88,41 +93,49 @@ namespace Skulk
             );
         }
 
-        public void Update(TileMap myMap, int squaresAcross, int squaresDown, GameTime gameTime)
+        public void Update(TileMap myMap, int squaresAcross, int squaresDown, GameTime gameTime, Rectangle[,] drawnRectangles)
 		{
-
+            GamePadState gps = GamePad.GetState(PlayerIndex.One);
 			KeyboardState ks = Keyboard.GetState ();
             MouseState ms = Mouse.GetState();
             Vector2 mouseLoc = new Vector2(ms.X, ms.Y);
             Vector2 direction;
             direction.X = mouseLoc.X - position.X;
-            direction.Y = mouseLoc.Y - position.Y;
-           
-            this.rotation = (float)(Math.Atan2(direction.Y, direction.X)) - (float)Math.PI/2;
+            direction.Y = mouseLoc.Y  - position.Y;
+
+            if (gps.IsConnected)
+            {
+                direction.X = gps.ThumbSticks.Left.X;
+                direction.Y = gps.ThumbSticks.Left.Y * -1;
+            }
+
+            if (direction.X + direction.Y != 0)
+                this.rotation = (float)(Math.Atan2(direction.Y, direction.X)) - (float)Math.PI/2;
             //Console.WriteLine(nextTileX);
            
             //Console.WriteLine(myMap.obstacleTiles.Last.Value);
 
+            if (direction.X < 0)
+                nextTileX = tileX - 1;
+            if (direction.X > 0)
+                nextTileX = tileX ;
+            if (direction.Y > 0)
+                nextTileY = tileY + 1;
+            if (direction.Y < 0)
+                nextTileY = tileY - 1;
+
             int xCount;
             int yCount;
-            if (ks.IsKeyDown(Keys.W))
+            if (ks.IsKeyDown(Keys.W) || (gps.IsConnected && (direction.X + direction.Y != 0)))
             {
                 this.animationCount += 1;
-              
-                if (direction.X < 0)
-                    nextTileX = tileX - 1;
-                if (direction.X > 0)
-                    nextTileX = tileX + 1;
-                if (direction.Y > 0)
-                    nextTileY = tileY + 1;
-                if (direction.Y < 0)
-                    nextTileY = tileY - 1;
-              
-                if (!myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)))
+
+             
+
+               if (!myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)))
                     this.Location.X = MathHelper.Clamp(this.Location.X - (float)Math.Sin(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * tileSize);
-              
-                if (!myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)))
-                    this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapHeight - squaresDown) * tileSize);
+               if (!myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)))
+                   this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapHeight - squaresDown) * tileSize);
             }
             /*
             if (ks.IsKeyDown(Keys.Left))
@@ -154,9 +167,23 @@ namespace Skulk
                 this.animationCount += 1;
                 this.Location.Y = MathHelper.Clamp(this.Location.Y + acceleration, 0, (myMap.MapHeight - squaresDown) * 64);
             }*/
-            xCount = (int)(this.Location.X -75) / tileSize + (squaresAcross ) / 2 ;
-            yCount = (int)(this.Location.Y-62) / tileSize + (squaresDown) / 2;
-            Console.WriteLine(xCount + " " + yCount);
+            if (ks.IsKeyDown(Keys.E) || gps.Buttons.A == ButtonState.Pressed)
+            {
+                if (numGold > 0 && !goldKeyPressed)
+                {
+                    myMap.mapCell[tileX, tileY].AddBaseTile(229);
+                    myMap.mapCell[tileX, tileY].AddObject("Gold");
+                    numGold--;
+                    goldKeyPressed = true;
+                }
+            }
+            if (ks.IsKeyUp(Keys.E) && gps.Buttons.A == ButtonState.Released)
+            {
+                goldKeyPressed = false;
+            }
+            xCount = (int)(this.Location.X) / tileSize + (squaresAcross ) / 2 ;
+            yCount = (int)(this.Location.Y) / tileSize + (squaresDown) / 2;
+          //  Console.WriteLine(xCount + " " + yCount);
             this.updateTilePosition(xCount, yCount);
             UpdateAnimation();
             base.Update(gameTime);
@@ -177,14 +204,19 @@ namespace Skulk
             //Console.WriteLine(this.destination.X + ", " + this.destination.Y);
 
             spritebatch.Draw(texture, this.destination, this.source, Color.White, this.rotation, origin, SpriteEffects.None, 0);
-            /*boundingBox Debug
-            spritebatch.Draw(
+            //boundingBox Debug
+            /*spritebatch.Draw(
                         texture,
                         boundingBox,
                         source,
                         Color.Black
                         );*/
-                
+            /*spritebatch.Draw(
+                   texture,
+                   destination,
+                   source,
+                   Color.Black
+                   );*/
           
 		}
 

@@ -13,7 +13,7 @@ namespace Skulk
         protected Rectangle destination;
 		public string objectID;
 
-        protected Point currentTile;
+        public Point currentTile;
 		protected TileMap map;
 
         protected float rotation;
