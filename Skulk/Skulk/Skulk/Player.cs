@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Skulk
 {
@@ -11,6 +12,10 @@ namespace Skulk
         public Vector2 Location = Vector2.Zero;
         public Rectangle boundingBox;
 		public Texture2D texture;
+        SoundEffect coinSound;
+
+        public int numGold;
+        bool goldKeyPressed;
 
         public int numGold;
         bool goldKeyPressed;
@@ -51,15 +56,23 @@ namespace Skulk
 		{
 		}
 
-        public void initialize(Vector2 position, float rotation, Texture2D texture, int tileX, int tileY, string objectID, TileMap map)
+        public void initialize(Vector2 position, float rotation, Texture2D texture,SoundEffect coinSound, int tileX, int tileY, string objectID, TileMap map)
         {
             this.texture = texture;
+            this.coinSound = coinSound;
             this.animationCount = 0;
             this.objectID = objectID;
             this.map = map;
             this.tileX = tileX;
             this.tileY = tileY;
             this.position = position;
+
+            this.Location.X = tileSize * tileX - (6 * tileSize);
+            this.Location.Y = tileSize * tileY - (4 * tileSize);
+            this.numGold = 3;
+            this.goldKeyPressed = false;
+            this.rotation = rotation;
+
             this.Location.X = tileSize * tileX;
             this.Location.Y = tileSize * tileY;
             this.numGold = 3;
@@ -174,6 +187,9 @@ namespace Skulk
                     myMap.mapCell[tileX, tileY].AddBaseTile(229);
                     myMap.mapCell[tileX, tileY].AddObject("Gold");
                     numGold--;
+
+                    coinSound.Play();
+
                     goldKeyPressed = true;
                 }
             }

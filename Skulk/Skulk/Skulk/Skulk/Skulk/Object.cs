@@ -11,9 +11,9 @@ namespace Skulk
 		public Texture2D texture;
 		protected Rectangle source;
         protected Rectangle destination;
-		public string objectID;
+		protected string objectID;
 
-        public Point currentTile;
+        protected Point currentTile;
 		protected TileMap map;
 
         protected float rotation;

@@ -36,6 +36,9 @@ namespace Skulk
 		Player player;
         Vector2 start;
         Texture2D timTexture;
+
+        SoundEffect coinSound;
+
 		
         GameOverScreen gameOver;
         SpriteFont gameOverFont;
@@ -93,6 +96,24 @@ namespace Skulk
             Point[] goal = new Point[2];
             goal[0].X = 25;
             goal[0].Y = 4;
+            goal[1].X = 39;
+            goal[1].Y = 4;
+            Point[] starts = new Point[2];
+            starts[0].X = 11;
+            starts[0].Y = 21;
+            starts[1].X = 10;
+            starts[1].Y = 13;
+            currentLevel = new Level(lvl1 , goal, starts, 0,2);
+          
+
+            //TileMap
+            TileMap[] lvl1 = new TileMap[2];
+            lvl1[0] = new TileMap(1,1);
+            lvl1[1] = new TileMap(1,2);
+            //Level
+            Point[] goal = new Point[2];
+            goal[0].X = 25;
+            goal[0].Y = 4;
             Point[] starts = new Point[2];
             starts[0].X = 7;
             starts[0].Y = 15;
@@ -105,6 +126,8 @@ namespace Skulk
             //Audio
             sound.normalMusic = Content.Load<Song>("hero");
             sound.Alert = Content.Load<Song>("emergence");
+
+            coinSound = Content.Load<SoundEffect>("coinbag");
 
             SpriteFont font = Content.Load<SpriteFont>("SpriteFont1");
             blackTexture = new Texture2D(GraphicsDevice, 1, 1);
@@ -135,10 +158,17 @@ namespace Skulk
             //Load guards
             loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1)  + "guards.csv");
 
+
+            //Load guards
+            loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1)  + "guards.csv");
+
             MediaPlayer.Volume = 0.25f;
 		    start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 			timTexture = Content.Load<Texture2D>("sprite");
 			player = new Player(this);
+
+            player.initialize(start, (float)Math.PI, timTexture,coinSound,currentLevel.start[0].X,currentLevel.start[0].Y, "Player", currentLevel.currentMap);
+
             player.initialize(start, 0, timTexture,currentLevel.start[0].X,currentLevel.start[0].Y, "Player", currentLevel.currentMap);
 			
 			base.Initialize ();
@@ -164,31 +194,32 @@ namespace Skulk
 		/// checking for collisions, gathering input, and playing audio.
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		protected override void Update (GameTime gameTime)
-		{
-			KeyboardState ks = Keyboard.GetState();
+        protected override void Update(GameTime gameTime)
+        {
+            KeyboardState ks = Keyboard.GetState();
             GamePadState gs = GamePad.GetState(PlayerIndex.One);
-            
-			// For Mobile devices, this logic will close the Game when the Back button is pressed
-			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
-				Exit ();
-			}
-			if(ks.IsKeyDown(Keys.Escape))
-				this.Exit();
+
+            // For Mobile devices, this logic will close the Game when the Back button is pressed
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            {
+                Exit();
+            }
+            if (ks.IsKeyDown(Keys.Escape))
+                this.Exit();
 
             if (gameState == GameState.Menu)
             {
-                
+
                 if (ks.IsKeyDown(Keys.Enter) || gs.Buttons.Start == ButtonState.Pressed)
                 {
-                 
+
                     gameState = GameState.Game;
                     Pause.pauseKeyDown = true;
-                   
+
                 }
             }
 
-            
+
 
             if (gameState == GameState.Game || gameState == GameState.Alert)
             {
@@ -201,7 +232,7 @@ namespace Skulk
                 if (!Pause.paused)
                 {
                     player.Update(currentLevel.currentMap, squaresAcross, squaresDown, gameTime, drawnRectangles);
-                 
+
                     foreach (Npc guard in currentLevel.guards[currentLevel.currentMapIndex])
                     {
 
@@ -251,46 +282,68 @@ namespace Skulk
                             MediaPlayer.Play(sound.Alert);
                     }
 
-                    if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y)
+
+                    if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y && currentLevel.currentMapIndex + 1 < currentLevel.winGoal)
                     {
                         currentLevel.currentMapIndex++;
                         currentLevel.currentMap = currentLevel.maps[currentLevel.currentMapIndex];
-                        
+                        currentLevel.currentGoal = currentLevel.goal[currentLevel.currentMapIndex];
 
                         int currNumGold = player.numGold;
-                        player.initialize(start, 0, timTexture, currentLevel.start[0].X, currentLevel.start[0].Y, "Player", currentLevel.currentMap);
+                        player.initialize(start, 0, timTexture, coinSound, currentLevel.start[currentLevel.currentMapIndex].X, currentLevel.start[currentLevel.currentMapIndex].Y, "Player", currentLevel.currentMap);
                         player.numGold = currNumGold;
-                        player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
-                        player.Location.Y = currentLevel.start[currentLevel.currentMapIndex].Y * tileSize - (4 * tileSize);
+                        //  player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
+                        //player.Location.Y = currentLevel.start[currentLevel.currentMapIndex].Y * tileSize - (4 * tileSize);
 
                         loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1) + "guards.csv");
- 
-                       /* gameOver = new GameOverScreen(this);
-                        int score = ((int)hud.timer / 1000);
-                        if (score < bestScore)
-                            bestScore = score;
-                        gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Congratulations");
-                        gameState = GameState.Over;*/
-                    }
-                    hud.Update(gameTime);
-                }
-            }
-         
-            if (gameState == GameState.Over)
-            {
-                MediaPlayer.Stop();
-                if (ks.IsKeyDown(Keys.Enter) || gs.Buttons.Start == ButtonState.Pressed)
-                {
-                    gameState = GameState.Game;
-                    Pause.pauseKeyDown = true;
-                    this.Initialize();
 
+                    }
+                    else if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y && currentLevel.currentMapIndex + 1 == currentLevel.winGoal)
+                    {
+                        gameOver = new GameOverScreen(this);
+
+                        if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y)
+                        {
+                            currentLevel.currentMapIndex++;
+                            currentLevel.currentMap = currentLevel.maps[currentLevel.currentMapIndex];
+
+
+                            int currNumGold = player.numGold;
+                            player.initialize(start, 0, timTexture, currentLevel.start[0].X, currentLevel.start[0].Y, "Player", currentLevel.currentMap);
+                            player.numGold = currNumGold;
+                            player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
+                            player.Location.Y = currentLevel.start[currentLevel.currentMapIndex].Y * tileSize - (4 * tileSize);
+
+                            loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1) + "guards.csv");
+
+                            /* gameOver = new GameOverScreen(this);
+                             int score = ((int)hud.timer / 1000);
+                             if (score < bestScore)
+                                 bestScore = score;
+                             gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Congratulations");
+                             gameState = GameState.Over;
+                             gameState = GameState.Over;*/
+                        }
+                        hud.Update(gameTime);
+                    }
                 }
+
+                if (gameState == GameState.Over)
+                {
+                    MediaPlayer.Stop();
+                    if (ks.IsKeyDown(Keys.Enter) || gs.Buttons.Start == ButtonState.Pressed)
+                    {
+                        gameState = GameState.Game;
+                        Pause.pauseKeyDown = true;
+                        this.Initialize();
+
+                    }
+                }
+                // TODO: Add your update logic here		
+
+                base.Update(gameTime);
             }
-			// TODO: Add your update logic here		
-          
-			base.Update (gameTime);
-		}
+        }
 
 		/// <summary>
 		/// This is called when the game should draw itself.
@@ -302,6 +355,10 @@ namespace Skulk
 			spriteBatch.Begin ();
 
             Vector2 firstSquare = new Vector2(player.Location.X / tileSize, player.Location.Y / tileSize);
+
+			int firstX = (int)firstSquare.X ;
+			int firstY = (int)firstSquare.Y ;
+
 			int firstX = (int)firstSquare.X;
 			int firstY = (int)firstSquare.Y;
 
@@ -391,7 +448,8 @@ namespace Skulk
          * */
         public void loadGuards(string csv)
         {
-            
+            currentLevel.initiailizeGuards(new ArrayList());
+
             Texture2D guardTexture = Content.Load<Texture2D>("guard");
             TextReader gr = new StreamReader(csv);
             TextReader nr = new StreamReader(csv);
@@ -412,6 +470,7 @@ namespace Skulk
                     patrolPoints[j] = new Point(posX, posy);
 
                 }
+
                 currentLevel.initiailizeGuards(new ArrayList());
                 Npc guard = new Npc(this);
                 guard.initialize(currentLevel.currentMap, patrolPoints[0].X, patrolPoints[0].Y, 0, 0, guardTexture, "guard" + i, patrolPoints, speed);

@@ -4,9 +4,17 @@ Content\torch.xnb
 Content\guard.xnb
 Content\tileset.xnb
 Content\hud.xnb
+<<<<<<< HEAD
+Content\view.xnb
+Content\Castle2.xnb
+Content\whitedot.xnb
+Content\minimap.xnb
+Content\SpriteFont1.xnb
+=======
 Content\SpriteFont1.xnb
 Content\view.xnb
 Content\Castle2.xnb
+>>>>>>> 60ab456212b75f26d207d305648914b7997e9b6b
 Content\GameOver.xnb
 Content\hero.xnb
 Content\emergence.xnb

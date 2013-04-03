@@ -8,9 +8,11 @@ namespace Skulk
 	{
 		static public Texture2D TileSetTexture;
 
-		static public Rectangle GetSourceRectangle (int tileIndex)
+		static public Rectangle GetSourceRectangle (int tileIndex, int size)
 		{
-    		return new Rectangle(0, tileIndex * 64, 64, 64);	
+            int tileY = tileIndex / (TileSetTexture.Width / size);
+            int tileX = tileIndex % (TileSetTexture.Width / size);
+    		return new Rectangle(tileX * size, tileY * size, size, size);	
 		}
 	}
 }
