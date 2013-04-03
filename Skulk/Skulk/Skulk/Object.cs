@@ -11,11 +11,9 @@ namespace Skulk
 		public Texture2D texture;
 		protected Rectangle source;
         protected Rectangle destination;
-		protected string objectID;
+		public string objectID;
 
-        protected int curTileX;
-        protected int curTileY;
-
+        public Point currentTile;
 		protected TileMap map;
 
         protected float rotation;
@@ -42,8 +40,8 @@ namespace Skulk
 			this.texture = texture;
 			this.map = map;
 			this.objectID = objectID;
-            this.curTileX = x;
-            this.curTileY = y;
+            this.currentTile.X = x;
+            this.currentTile.Y = y;
             this.rotation = 0;
 
 			map.mapCell[x,y].AddObject(objectID);
@@ -91,8 +89,8 @@ namespace Skulk
            // Console.WriteLine(this.curTileX + " " + this.curTileY + objectID);
            // Console.WriteLine(player.tileX + " " + player.tileY + "p");
 
-            if ((player.tileX >= this.curTileX - 1 && player.tileX <= this.curTileX + 1) &&
-                (player.tileY >= this.curTileY - 1 && player.tileY <= this.curTileY + 1))
+            if ((player.tileX >= this.currentTile.X - 1 && player.tileX <= this.currentTile.X + 1) &&
+                (player.tileY >= this.currentTile.Y - 1 && player.tileY <= this.currentTile.Y + 1))
             {
                // Console.WriteLine("close!");
                 if (this.boundingBox.Intersects(player.boundingBox))
