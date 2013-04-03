@@ -91,7 +91,8 @@ namespace Skulk
                 if (timeAtGold > 1500)
                 {
                     this.map.mapCell[currentTile.X, currentTile.Y].RemoveObject("Gold");
-                    this.map.mapCell[currentTile.X, currentTile.Y].RemoveBaseTile(227);
+                    this.map.mapCell[currentTile.X, currentTile.Y].RemoveBaseTile(229);
+
                     timeAtGold = 0;
                 }
                 ableToMove = false;
