@@ -223,7 +223,7 @@ namespace Skulk
 
                         }
 
-                        guard.Update(gameTime);
+                        guard.Update(player.whereOnTile, gameTime);
                     }
 
                     // If all guards can't see me change gamestate from alert to game
@@ -372,6 +372,8 @@ namespace Skulk
                         if (player.tileY - guard.currentTile.Y < 10 && guard.currentTile.Y - player.tileY < 10 && player.tileX - guard.currentTile.X < 12 && guard.currentTile.X - player.tileX < 12)
                             spriteBatch.Draw(dot, new Rectangle((GraphicsDevice.Viewport.Width - 128 + guard.currentTile.X * 4 ) - ((int)player.Location.X/16 -32), (guard.currentTile.Y * 4) - ((int)player.Location.Y/16 - 32), 8, 8), Color.Red);
                     }
+            if(Math.Abs(player.nextTileX -currentLevel.currentGoal.X) < 10 && Math.Abs(player.nextTileY -currentLevel.currentGoal.Y) <10)
+                spriteBatch.Draw(dot, new Rectangle((GraphicsDevice.Viewport.Width - 128 + currentLevel.currentGoal.X * 4) - ((int)player.Location.X / 16 - 32), (currentLevel.currentGoal.Y * 4) - ((int)player.Location.Y / 16 - 32), 8, 8), Color.Yellow);
              
             if (gameState == GameState.Over)
             {

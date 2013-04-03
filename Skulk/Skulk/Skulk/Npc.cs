@@ -78,7 +78,7 @@ namespace Skulk
                 frameHeight
                 );
         }
-        public override void Update(GameTime gameTime)
+        public void Update(Vector2 playerOffset, GameTime gameTime)
         {
 
             Point goal = detectionCheck();
@@ -130,8 +130,23 @@ namespace Skulk
                 {
                     if (currentTile.X == moveTo.X && currentTile.Y == moveTo.Y)
                     {
-                        this.originalOffsetX += moveByX;
-                        this.originalOffsetY += moveByY;
+                        if (this.originalOffsetY < (int)playerOffset.Y)
+                        {
+                            this.originalOffsetY += speed;
+                        }
+                        else if (this.originalOffsetY > (int)playerOffset.Y)
+                        {
+                            this.originalOffsetY -= speed;
+                        }
+
+                        if (this.originalOffsetX < (int)playerOffset.X)
+                        {
+                            this.originalOffsetX += speed;
+                        }
+                        else if (this.originalOffsetX > (int)playerOffset.X)
+                        {
+                            this.originalOffsetX -= speed;
+                        }
                     }
                 }
                 else

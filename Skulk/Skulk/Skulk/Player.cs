@@ -45,7 +45,7 @@ namespace Skulk
 
         protected TileMap map;
 
-        Vector2 whereOnTile;
+        public Vector2 whereOnTile;
 
 		public Player (Game game)
 			:base(game)
