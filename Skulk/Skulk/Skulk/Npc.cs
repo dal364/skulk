@@ -472,13 +472,18 @@ namespace Skulk
 
         public Point detectionCheck()
         {
-           
+            /*
+            foreach (Point p in tilesInRange)
+            {
+                map.mapCell[p.X, p.Y].RemoveBaseTile(228);
+            }
+             * */
             tilesInRange.Clear();
 
             int lookAhead = 4;
             int lookAcross = 2;//each way (left/right)
 
-            if (rotation == 0) //down
+            if (rotation == 0 || rotation == 2 * (float)Math.PI) //down
             {
                 for (int i = (lookAcross * -1); i <= lookAcross; i++)
                 {
@@ -494,7 +499,7 @@ namespace Skulk
                 }
             }
 
-            else if (rotation == (float)Math.PI) //up
+            else if (rotation == (float)Math.PI || rotation == 3 * (float)Math.PI) //up
             {
                 for (int i = (lookAcross * -1); i <= lookAcross; i++)
                 {
@@ -510,9 +515,8 @@ namespace Skulk
                 }
             }
 
-            else if (rotation == 3 * (float)Math.PI / 2) //right
+            else if (rotation == 3 * (float)Math.PI / 2 || Math.Round(rotation,5) == Math.Round(7*Math.PI/2,5)) //right
             {
-
                 for (int i = (lookAcross * -1); i <= lookAcross; i++)
                 {
                     for (int j = 0; j <= lookAhead; j++)
@@ -526,7 +530,7 @@ namespace Skulk
                     }
                 }
             }
-            else if (rotation == (float)Math.PI / 2) //left
+            else if (rotation == (float)Math.PI / 2 || rotation == 5 * (float)Math.PI / 2) //left
             {
                 for (int i = (lookAcross * -1); i <= lookAcross; i++)
                 {
@@ -541,7 +545,7 @@ namespace Skulk
                     }
                 }
             }
-            else if (rotation == (float)Math.PI / 4)
+            else if (rotation == (float)Math.PI / 4 || Math.Round(rotation,5) == Math.Round(9*(float)Math.PI / 4,5))
             {
                 for (int i = 0; i <= lookAhead; i++)
                 {
@@ -555,7 +559,7 @@ namespace Skulk
                 }
 
             }
-            else if (rotation == 3 * (float)Math.PI / 4)
+            else if (rotation == 3 * (float)Math.PI / 4 || rotation == 11*(float)Math.PI / 4)
             {
                 for (int i = 0; i <= lookAhead; i++)
                 {
@@ -568,7 +572,7 @@ namespace Skulk
                     }
                 }
             }
-            else if (rotation == 5 * (float)Math.PI / 4)
+            else if (rotation == 5 * (float)Math.PI / 4 || rotation == 13*(float)Math.PI / 4)
             {
                 for (int i = 0; i <= lookAhead; i++)
                 {
@@ -581,7 +585,7 @@ namespace Skulk
                     }
                 }
             }
-            else if (rotation == 7 * (float)Math.PI / 4)
+            else if (rotation == 7 * (float)Math.PI / 4 || rotation == 15*(float)Math.PI / 4)
             {
                 for (int i = 0; i <= lookAhead; i++)
                 {
@@ -609,7 +613,8 @@ namespace Skulk
             // Goes through the detection list to see if gold, player, or prisoner is seen
             foreach (Point p in tilesInRange)
             {
-               // map.mapCell[p.X, p.Y].AddBaseTile(229);
+
+                //map.mapCell[p.X, p.Y].AddBaseTile(228);
                 if (this.map.mapCell[p.X, p.Y].hasObject("Gold"))
                 {
                     ISeeYou = true;
