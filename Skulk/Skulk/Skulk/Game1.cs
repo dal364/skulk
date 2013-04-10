@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -66,6 +68,9 @@ namespace Skulk
 		public Game1 ()
 		{
 			graphics = new GraphicsDeviceManager (this);
+            graphics.PreferredBackBufferWidth = 720;
+            graphics.PreferredBackBufferHeight = 480;
+
 			Content.RootDirectory = "Content";
             graphics.IsFullScreen = false;
             gameState = new GameState();
@@ -107,6 +112,7 @@ namespace Skulk
             sound.normalMusic = Content.Load<Song>("hero");
             sound.Alert = Content.Load<Song>("emergence");
             sound.coinSound = Content.Load<SoundEffect>("coinbag");
+            sound.fallSound = Content.Load<SoundEffect>("fall");
 
             SpriteFont font = Content.Load<SpriteFont>("SpriteFont1");
             blackTexture = new Texture2D(GraphicsDevice, 1, 1);
@@ -122,8 +128,8 @@ namespace Skulk
            
 
             // +2 to compensate for tiles off screen
-            squaresAcross = GraphicsDevice.Viewport.Width / tileSize + 2 ;
-            squaresDown = GraphicsDevice.Viewport.Height / tileSize + 2 ;
+            squaresAcross = 13 ;
+            squaresDown = 9 ;
             
             //hud
             hud = new hud(this);
@@ -137,6 +143,9 @@ namespace Skulk
 
             //Load guards
             loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1)  + "guards.csv");
+
+            //Load Gold
+            loadGold("lvl1map" + (currentLevel.currentMapIndex + 1) + "gold.csv");
 
             MediaPlayer.Volume = 0.25f;
 		    start = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
@@ -181,13 +190,10 @@ namespace Skulk
 
             if (gameState == GameState.Menu)
             {
-                
                 if (ks.IsKeyDown(Keys.Enter) || gs.Buttons.Start == ButtonState.Pressed)
                 {
-                 
                     gameState = GameState.Game;
-                    Pause.pauseKeyDown = true;
-                   
+                    Pause.pauseKeyDown = true; 
                 }
             }
 
@@ -203,12 +209,44 @@ namespace Skulk
                 // If the user hasn't paused, Update normally
                 if (!Pause.paused)
                 {
-                    player.Update(currentLevel.currentMap, squaresAcross, squaresDown, gameTime, drawnRectangles);
-                 
-                    foreach (Npc guard in currentLevel.guards[currentLevel.currentMapIndex])
+                    if (ks.IsKeyDown(Keys.Q))
                     {
+                        for (int i = 0; i <= currentLevel.itemLocation.Length - 1; i++)
+                        {
+                            for (int j = -1; j <= 1; j++)
+                            {
+                                for (int k = -1; k <= 1; k++)
+                                {
+                                    if (player.tileX + j == currentLevel.itemLocation[i].X && player.tileY + k == currentLevel.itemLocation[i].Y)
+                                    {
+                                        player.addGold();
+                                        currentLevel.currentMap.mapCell[currentLevel.itemLocation[i].X, currentLevel.itemLocation[i].Y].RemoveBaseTile(229);
+                                        currentLevel.currentMap.mapCell[currentLevel.itemLocation[i].X, currentLevel.itemLocation[i].Y].RemoveObject("Gold2");
+                                        sound.coinSound.Play();
+                                        currentLevel.itemLocation[i] = new Point(-1, -1);
 
-                        if (guard.isColliding(player))
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    player.Update(currentLevel.currentMap, squaresAcross, squaresDown, gameTime, drawnRectangles);
+
+                    //check to see if there are no guards left
+
+                    if (currentLevel.guards.ElementAt(currentLevel.currentMapIndex).Count <= 0)
+                    {
+                        gameState = GameState.Game;
+                    }
+                     
+
+                    for (int i = 0; i < currentLevel.guards.ElementAt(currentLevel.currentMapIndex).Count; i++ )
+                    {
+                        List<Npc> guardList = currentLevel.guards.ElementAt(currentLevel.currentMapIndex);
+
+                        if (guardList.ElementAt(i).isColliding(player))
                         {
                             gameOver = new GameOverScreen(this);
                             gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Sorry Tim.");
@@ -216,30 +254,47 @@ namespace Skulk
 
                             break;
                         }
-                        if (guard.ISeeYou)
+                        if (guardList.ElementAt(i).ISeeYou)
                         {
-                            Console.WriteLine(guard.objectID);
+                            //Console.WriteLine(guard.objectID);
                             gameState = GameState.Alert;
 
                         }
 
-                        guard.Update(player.whereOnTile, gameTime);
+
+                        if (guardList.ElementAt(i).isDead())
+                        {
+                            currentLevel.guards.ElementAt(currentLevel.currentMapIndex).RemoveAt(i);
+
+                            sound.fallSound.Play();
+                        }
+                        else
+                            currentLevel.guards.ElementAt(currentLevel.currentMapIndex).ElementAt(i).Update(player.whereOnTile, gameTime);
+                            
+
                     }
 
                     // If all guards can't see me change gamestate from alert to game
                     int count = 0;
-                    foreach (Npc guard in currentLevel.guards[currentLevel.currentMapIndex])
+                    foreach (Npc guard in currentLevel.guards.ElementAt(currentLevel.currentMapIndex))
                     {
 
                         if (!guard.ISeeYou)
                         {
                             count++;
                         }
-                        if (count >= currentLevel.guards[currentLevel.currentMapIndex].Count)
+                        if (count >= currentLevel.guards.ElementAt(currentLevel.currentMapIndex).Count)
                         {
                             gameState = GameState.Game;
 
                         }
+                    }
+
+                    if (player.isDead())
+                    {
+                        gameOver = new GameOverScreen(this);
+                        gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Sorry Tim.");
+                        gameState = GameState.Over;
                     }
 
                     if (gameState == GameState.Game)
@@ -249,7 +304,6 @@ namespace Skulk
                     }
                     if (gameState == GameState.Alert)
                     {
-                        //Console.WriteLine("ALERT");
                         if (MediaPlayer.Queue.ActiveSong != sound.Alert)
                             MediaPlayer.Play(sound.Alert);
                     }
@@ -279,9 +333,11 @@ namespace Skulk
                         gameState = GameState.Over;
                     }
                     hud.Update(gameTime);
+                    
                 }
             }
          
+
             if (gameState == GameState.Over)
             {
                 MediaPlayer.Stop();
@@ -289,12 +345,12 @@ namespace Skulk
                 {
                     gameState = GameState.Game;
                     Pause.pauseKeyDown = true;
+      
                     this.Initialize();
 
                 }
             }
 			// TODO: Add your update logic here		
-          
 			base.Update (gameTime);
 		}
 
@@ -343,6 +399,7 @@ namespace Skulk
 				}
 			}
 
+
           
 			//draw player
 			player.draw (this.spriteBatch);
@@ -377,7 +434,6 @@ namespace Skulk
              
             if (gameState == GameState.Over)
             {
-
                 gameOver.Draw(spriteBatch);
             }
 
@@ -386,7 +442,7 @@ namespace Skulk
                 menu.Draw(spriteBatch);
             }
 
-            Console.WriteLine(player.tileX);
+            //Console.WriteLine(player.tileX);
 			spriteBatch.End ();
 			base.Draw (gameTime);
 		}
@@ -396,7 +452,7 @@ namespace Skulk
          * */
         public void loadGuards(string csv)
         {
-            currentLevel.initiailizeGuards(new ArrayList());
+            currentLevel.initiailizeGuards(new List<Npc>());
             Texture2D guardTexture = Content.Load<Texture2D>("guard");
             TextReader gr = new StreamReader(csv);
             TextReader nr = new StreamReader(csv);
@@ -409,19 +465,58 @@ namespace Skulk
                 int numPoints = Convert.ToInt32(line.Split(';').Length - 1);
                 String[] points = line.Split(';'); //last part will be speed, not used
                 Point[] patrolPoints = new Point[numPoints];
+                int[] directions = new int[numPoints];
+
                 for (int j = 0; j < numPoints; j++)
                 {
                     String[] point = points[j].Split(',');
                     int posX = Convert.ToInt32(point[0]);
                     int posy = Convert.ToInt32(point[1]);
+                    int direction = Convert.ToInt32(point[2]);
                     patrolPoints[j] = new Point(posX, posy);
+                    directions[j] = direction;
 
                 }
-              
+
                 Npc guard = new Npc(this);
-                guard.initialize(currentLevel.currentMap, patrolPoints[0].X, patrolPoints[0].Y, 0, 0, guardTexture, "guard" + i, patrolPoints, speed);
+                guard.initialize(currentLevel.currentMap, patrolPoints[0].X, patrolPoints[0].Y, 0, 0, guardTexture, "guard" + i, patrolPoints, directions, speed);
                 currentLevel.guards[currentLevel.currentMapIndex].Add(guard);
 
+            }
+            gr.Close();
+            nr.Close();
+        }
+
+        public void loadGold(string csv)
+        {
+
+
+
+            TextReader gr = new StreamReader(csv);
+            TextReader nr = new StreamReader(csv);
+            String line;
+            int numGold = nr.ReadToEnd().Split('\n').Length - 1;
+            this.currentLevel.itemLocation = new Point[numGold];
+            for (int i = 0; i < numGold; i++)
+            {
+                line = gr.ReadLine();
+                Boolean hidden = false;
+                if (line.Contains("!"))
+                {
+                    line = line.Replace("!", "");
+                    hidden = true;
+                }
+
+                String[] points = line.Split(',');
+                int posX = Convert.ToInt32(points[0]);
+                int posY = Convert.ToInt32(points[1]);
+                currentLevel.itemLocation[i] = new Point(posX, posY);
+
+                if (!hidden)
+                {
+                    currentLevel.currentMap.mapCell[posX, posY].AddBaseTile(229);
+                    currentLevel.currentMap.mapCell[posX, posY].AddObject("Gold2");
+                }
             }
             gr.Close();
             nr.Close();

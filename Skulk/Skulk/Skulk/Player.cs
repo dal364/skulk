@@ -15,7 +15,7 @@ namespace Skulk
         public int numGold;
         bool goldKeyPressed;
 
-        float acceleration = 2;
+        float acceleration = 3;
 
         int tileSize = 64;
 		public Rectangle destination;
@@ -134,23 +134,20 @@ namespace Skulk
             {
                 this.animationCount += 1;
 
-         
-
-               if (!myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)))
+                if (myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)) && direction.Y > 0)
+                {
+                    if (whereOnTile.Y < 60)
+                        this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapHeight - squaresDown) * tileSize);
+                }
+                else if (!myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)))
+                    this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapHeight - squaresDown) * tileSize);
+                if (myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)) && direction.X < 0)
+                {
+                    if (whereOnTile.X > 5)
+                        this.Location.X = MathHelper.Clamp(this.Location.X - (float)Math.Sin(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * tileSize);
+                }
+                else if (!myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)))
                     this.Location.X = MathHelper.Clamp(this.Location.X - (float)Math.Sin(this.rotation) * acceleration, 0, (myMap.MapWidth - squaresAcross) * tileSize);
-               if (!myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)))
-                   this.Location.Y = MathHelper.Clamp(this.Location.Y + (float)Math.Cos(this.rotation) * acceleration, 0, (myMap.MapHeight - squaresDown) * tileSize);
-               
-               if (myMap.obstacleTiles.Contains(new Point(tileX, nextTileY)) && direction.Y > 0)
-               {
-                  if(whereOnTile.Y < 60)
-                   this.Location.Y += acceleration;
-               }
-               if (myMap.obstacleTiles.Contains(new Point(nextTileX, tileY)) && direction.X > 0)
-               {
-                   if (whereOnTile.X < 60)
-                       this.Location.X += acceleration;
-               }
             }
             /*
             if (ks.IsKeyDown(Keys.Left))
@@ -262,11 +259,18 @@ namespace Skulk
              this.whereOnTile.X = Location.X % tileSize;
 
          }
+         public Boolean isDead()
+         {
+             if (map.mapCell[tileX, tileY].hasObject("hole"))
+                 return true;
+             else
+                 return false;
 
-        
-        
-         
-
+         }
+        public void addGold()
+        {
+            numGold++;
+        }
 	}
 }
 

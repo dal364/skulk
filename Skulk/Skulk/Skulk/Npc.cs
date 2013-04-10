@@ -20,18 +20,23 @@ namespace Skulk
         int moveByY;
         int moveByX;
         int speed;
+        int chase;
 
         Point moveTo;
         Boolean ableToMove;
 
         // For Guards and player interaction
-        LinkedList<Point> closedISeeYou;
+        LinkedList<Point> guardPath;
+        Boolean setPath;
+        Point nextPoint;
         public Boolean ISeeYou;
         Boolean wait;
         int waitTime;
-        Point lastSpot;
+        int direction;
         int time;
         int timeAtGold;
+        int[] directions;
+        Point lastSpot;
         ArrayList tilesInRange;
 
         public Npc(Game game)
@@ -43,7 +48,7 @@ namespace Skulk
             base.frameSkipY = 64;
         }
 
-        public void initialize(TileMap map, int x, int y, int offsetX, int offsetY, Texture2D texture, string objectID, Point[] patrolTiles, int speed)
+        public void initialize(TileMap map, int x, int y, int offsetX, int offsetY, Texture2D texture, string objectID, Point[] patrolTiles, int[] directions, int speed)
         {
             this.patrolTiles = patrolTiles;
             this.originalOffsetX = offsetX; //offset in current tile
@@ -55,19 +60,24 @@ namespace Skulk
             this.currentTile = new Point(x, y);
             this.moveByX = speed;
             this.moveByY = speed;
+            this.chase = 2;
 
-            this.itr = 0; //index of next tile to move to, guard initially drawn at tile 0 it patrolTiles, so start itr at 1
+            this.itr = 1; //index of next tile to move to, guard initially drawn at tile 0 it patrolTiles, so start itr at 1
             this.moveTo = new Point(-1, -1);
             this.ableToMove = true;
             this.ISeeYou = false;
             this.wait = false;
             this.waitTime = 0;
+            this.direction = 4;
+            this.directions = directions;
             this.time = 1000;
             this.timeAtGold = 0;
             this.lastSpot = new Point(0, 0);
             tilesInRange = new ArrayList();
 
-            closedISeeYou = new LinkedList<Point>();
+            this.guardPath = new LinkedList<Point>();
+            this.setPath = false;
+            this.nextPoint = new Point(0, 0);
 
             map.mapCell[x, y].AddObject(objectID);
 
@@ -101,6 +111,9 @@ namespace Skulk
             {
                 if (currentTile.X == lastSpot.X && currentTile.Y == lastSpot.Y)
                 {
+                    // Setting the movement back to patrol speed, lost the player/prisoner
+                    this.moveByX = this.speed;
+                    this.moveByY = this.speed;
                     ableToMove = false;
                     waitTime = waitTime + gameTime.ElapsedGameTime.Milliseconds;
                     if (time >= 6000)
@@ -108,12 +121,43 @@ namespace Skulk
                         time = 1000;
                         wait = false;
                         waitTime = 0;
+                        if (this.direction == 4)
+                        {
+                            this.setPath = true;
+                            this.guardPath = Astar(currentTile, patrolTiles[itr]);
+                            this.nextPoint = this.guardPath.First.Value;
+                            this.guardPath.RemoveFirst();
+                        }
                         lastSpot.X = 0;
                         lastSpot.Y = 0;
                     }
                     else if (waitTime >= time)
                     {
-                        this.rotation = this.rotation + (float)Math.PI / 2;
+
+                        // direction is 1 rotate clockwise (Right)
+                        if (this.direction == 1)
+                        {
+                            this.rotation = this.rotation + (float)Math.PI / 2;
+                            this.direction = 0; // only rotate once
+
+                        }
+                        // direction is 2 rotate counter-clockwise (Left)
+                        else if (this.direction == 2)
+                        {
+                            this.rotation = this.rotation + 3 * (float)Math.PI / 2;
+                            this.direction = 0; // only rotate once
+                        }
+                        else if (this.direction == 0)
+                        {
+                            // don't rotate
+                        }
+
+                        // this is for the when the guard looses you on the chase
+                        else if (this.direction == 4)
+                        {
+                            this.rotation = this.rotation + (float)Math.PI / 2;
+                        }
+
                         this.time = time + 1000;
                     }
                 }
@@ -125,27 +169,31 @@ namespace Skulk
             // If the guard see's you then find the shortest distance to the play/prisoner and follow them    
             else if (ISeeYou)
             {
+                // Setting the movement speed faster when the guard is chasing
+                this.moveByX = this.chase;
+                this.moveByY = this.chase;
                 timeAtGold = 0;
+                this.direction = 4;
                 if (!map.mapCell[currentTile.X, currentTile.Y].hasObject("Gold"))
                 {
                     if (currentTile.X == moveTo.X && currentTile.Y == moveTo.Y)
                     {
                         if (this.originalOffsetY < (int)playerOffset.Y)
                         {
-                            this.originalOffsetY += speed;
+                            this.originalOffsetY += this.chase;
                         }
                         else if (this.originalOffsetY > (int)playerOffset.Y)
                         {
-                            this.originalOffsetY -= speed;
+                            this.originalOffsetY -= this.chase;
                         }
 
                         if (this.originalOffsetX < (int)playerOffset.X)
                         {
-                            this.originalOffsetX += speed;
+                            this.originalOffsetX += this.chase;
                         }
                         else if (this.originalOffsetX > (int)playerOffset.X)
                         {
-                            this.originalOffsetX -= speed;
+                            this.originalOffsetX -= this.chase;
                         }
                     }
                 }
@@ -158,16 +206,22 @@ namespace Skulk
             // If none of the conditions above are true then go to set path, Patrol the area
             else
             {
-
-                if (patrolTiles.Length == 1)
+                if (this.setPath)
                 {
-                    if ((currentTile.X == patrolTiles[0].X) && (currentTile.Y == patrolTiles[0].Y))
-                    {
-                        ableToMove = false;
-                    }
+                    goal = this.nextPoint;
                 }
-
-                goal = patrolTiles[itr];
+                else
+                {
+                    if (patrolTiles.Length == 1)
+                    {
+                        if ((currentTile.X == patrolTiles[0].X) && (currentTile.Y == patrolTiles[0].Y))
+                        {
+                            ableToMove = false;
+                        }
+                        itr = 0;
+                    }
+                    goal = patrolTiles[itr];
+                }
             }
 
             // Gets the next position to move to
@@ -269,9 +323,31 @@ namespace Skulk
                     // For the patrol, only increment to next position if it made it to the next tile
                     if (!ISeeYou)
                     {
-                        itr++;
-                        if (itr >= patrolTiles.Length)
-                            itr = 0;
+                        if (this.setPath)
+                        {
+                            if (this.guardPath.Count == 0)
+                            {
+                                this.setPath = false;
+                            }
+                            else
+                            {
+                                this.nextPoint = this.guardPath.First.Value;
+                                this.guardPath.RemoveFirst();
+                            }
+                        }
+                        else
+                        {
+
+                            this.direction = this.directions[itr];
+                            itr++;
+                            wait = true;
+                            lastSpot.X = currentTile.X;
+                            lastSpot.Y = currentTile.Y;
+                            this.waitTime = 1000;
+                            if (itr >= patrolTiles.Length)
+                                itr = 0;
+
+                        }
                     }
                 }
 
@@ -340,6 +416,10 @@ namespace Skulk
 
         }
 
+        /**
+         * Used for following the player, constantly updating so using a full A* algorithm will be costly
+         * returns the next closest point to the goal point
+         */
         public Point pathFinder(Point start, Point goal)
         {
             // if there the same skip everything and return
@@ -347,13 +427,6 @@ namespace Skulk
             {
                 return goal;
             }
-
-            // Clear out the closed list for finding a way back to patrol point, don't need it if the guard is going to be somewhere else
-            if (ISeeYou)
-            {
-                closedISeeYou.Clear();
-            }
-
 
             LinkedList<Point> openset = new LinkedList<Point>();
             LinkedList<Point> closedset = map.obstacleTiles;
@@ -380,16 +453,8 @@ namespace Skulk
                 }
                 else if (!openset.Contains(neighbor))
                 {
-                    // For finding his way back home
-                    if (closedISeeYou.Contains(neighbor) && (!ISeeYou))
-                    {
-                        // Skip
-                    }
-                    else
-                    {
-                        f_score[neighbor] = heuristicCostEstimate(neighbor, goal);
-                        openset.AddLast(neighbor);
-                    }
+                    f_score[neighbor] = heuristicCostEstimate(neighbor, goal);
+                    openset.AddLast(neighbor);  
                 }
 
             }
@@ -403,7 +468,6 @@ namespace Skulk
 
                 if (check == 0)
                 {
-                    closedISeeYou.Clear();
                     return goal;
                 }
                 else if (check < lowest)
@@ -411,31 +475,99 @@ namespace Skulk
                     lowest = check;
                     current = score;
                 }
-
-                // Randomize direction for going around objects????? Not working
-                /*else if (check == lowest)
-                {
-                    Random rand = new Random();
-                    int coin = rand.Next(-10, 10);
-                    Console.WriteLine(coin + "******************");
-                    if (coin <= 0)
-                    {
-                        current = score;
-                    }
-                }*/
             }
 
-            if ((current.X == start.X) && (current.Y == start.Y))
+            return current;
+
+        }
+
+        /**
+         * A* Algorithm
+         * Similar to the Pathfinder function above, but looks for the whole path instead of next point
+         * Used for the guard to find it's way back to his patrol point, runs once everytime the guard looses you
+         * returns a path to the guards patrol point (shortest distance)
+         */
+        public LinkedList<Point> Astar(Point start, Point goal)
+        {
+            LinkedList<Point> openset = new LinkedList<Point>();
+            LinkedList<Point> closedset = map.obstacleTiles;
+            LinkedList<Point> pathClosedset = new LinkedList<Point>();
+            Hashtable came_from = new Hashtable();
+
+            openset.AddLast(start);
+
+
+            Hashtable f_score = new Hashtable();
+
+            // Calculation for the distance between guard and player
+            f_score[start] = heuristicCostEstimate(start, goal);
+
+            while (openset.Count > 0)
             {
-                closedISeeYou.AddLast(current);
-                return pathFinder(start, goal);
+                // Current should change
+                Point current;
+                current.X = 0;
+                current.Y = 0;
+
+                // Finds the closest point
+                int lowest = 9999;
+                foreach (Point score in openset)
+                {
+                    int check = (int)f_score[score];
+                    if (check < lowest)
+                    {
+                        lowest = check;
+                        current = score;
+                    }
+                }
+
+                if (current.X == goal.X && current.Y == goal.Y)
+                {
+                    return reconstruct_path(came_from, goal);
+                }
+                openset.Remove(current);
+                pathClosedset.AddLast(current);
+
+                LinkedList<Point> neighbors = find_neighbors(current);
+
+                foreach (Point neighbor in neighbors)
+                {
+
+                    if (closedset.Contains(neighbor) || pathClosedset.Contains(neighbor))
+                    {
+                        // Skip
+                    }
+                    else if (!openset.Contains(neighbor))
+                    {
+                        came_from[neighbor] = current;
+                        f_score[neighbor] = heuristicCostEstimate(neighbor, goal);
+                        if (!openset.Contains(neighbor))
+                        {
+                            openset.AddLast(neighbor);
+                        }
+                    }
+                }
+            }
+            return new LinkedList<Point>();
+        }
+
+        /**
+         * Constructs the path to the goal point
+         */
+        public LinkedList<Point> reconstruct_path(Hashtable came_from, Point current_node)
+        {
+            LinkedList<Point> p = new LinkedList<Point>();
+            if (came_from.Contains(current_node))
+            {
+                p = reconstruct_path(came_from, (Point)came_from[current_node]);
+                p.AddLast(current_node);
+                return p;
             }
             else
             {
-                return current;
+                return p;
             }
         }
-
 
         /**
         * current is the Center point
@@ -674,6 +806,13 @@ namespace Skulk
             }
 
             return point;
+        }
+        public Boolean isDead()
+        {
+            if (map.mapCell[currentTile.X, currentTile.Y].hasObject("hole"))
+                return true;
+            else 
+                return false;
         }
     }
 }

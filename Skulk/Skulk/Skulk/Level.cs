@@ -15,7 +15,7 @@ namespace Skulk
         public Point[] goal;
         public Point currentGoal;
         public Point[] start;
-        public ArrayList[] guards;
+        public List<List<Npc>> guards;
         public int winGoal; // winning door index
         public Point[] itemLocation;
         
@@ -28,13 +28,13 @@ namespace Skulk
             this.goal = goal;
             currentGoal = this.goal[mapIndex];
             this.start = start;
-            guards = new ArrayList[maps.Length];
+            guards = new List<List<Npc>>();
             this.winGoal = win;
         }
 
-        public void initiailizeGuards(ArrayList arr)
+        public void initiailizeGuards(List<Npc> arr)
         {
-            guards[this.currentMapIndex] = arr;
+            guards.Insert(this.currentMapIndex,arr);
         }
     }
 }

@@ -42,9 +42,11 @@ namespace Skulk
 
                     this.mapCell[x, y] = new MapCell(Convert.ToInt32(mapLine.Split(',')[x]));
                     this.mapCell[x, y].AddBaseTile(Convert.ToInt32(mapLineObstacle.Split(',')[x]));
-                 
+                    if (Convert.ToInt32(mapLineObstacle.Split(',')[x]) == 227)
+                        this.mapCell[x, y].AddObject("hole");
 
-                    if (Convert.ToInt32(mapLineObstacle.Split(',')[x]) != 0)//integer corresponding to walls or boxes,etc
+
+                    if (Convert.ToInt32(mapLineObstacle.Split(',')[x]) != 0 && Convert.ToInt32(mapLineObstacle.Split(',')[x]) !=227)//integer corresponding to walls or boxes,etc
                     {
                         obstacleTiles.AddFirst(new Point(x, y));
                     }
