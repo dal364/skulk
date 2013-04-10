@@ -617,6 +617,10 @@ namespace Skulk
 
             if (rotation == 0 || rotation == 2 * (float)Math.PI) //down
             {
+                tilesInRange.Add(new Point(currentTile.X, currentTile.Y - 1));
+                tilesInRange.Add(new Point(currentTile.X + 1, currentTile.Y - 1));
+                tilesInRange.Add(new Point(currentTile.X - 1, currentTile.Y - 1));
+
                 for (int i = (lookAcross * -1); i <= lookAcross; i++)
                 {
                     for (int j = 0; j <= lookAhead; j++)
@@ -633,6 +637,10 @@ namespace Skulk
 
             else if (rotation == (float)Math.PI || rotation == 3 * (float)Math.PI) //up
             {
+                tilesInRange.Add(new Point(currentTile.X, currentTile.Y + 1));
+                tilesInRange.Add(new Point(currentTile.X + 1, currentTile.Y + 1));
+                tilesInRange.Add(new Point(currentTile.X - 1, currentTile.Y + 1));
+
                 for (int i = (lookAcross * -1); i <= lookAcross; i++)
                 {
                     for (int j = 0; j <= lookAhead; j++)
@@ -649,6 +657,10 @@ namespace Skulk
 
             else if (rotation == 3 * (float)Math.PI / 2 || Math.Round(rotation,5) == Math.Round(7*Math.PI/2,5)) //right
             {
+                tilesInRange.Add(new Point(currentTile.X - 1, currentTile.Y));
+                tilesInRange.Add(new Point(currentTile.X - 1, currentTile.Y + 1));
+                tilesInRange.Add(new Point(currentTile.X - 1, currentTile.Y - 1));
+
                 for (int i = (lookAcross * -1); i <= lookAcross; i++)
                 {
                     for (int j = 0; j <= lookAhead; j++)
@@ -664,6 +676,9 @@ namespace Skulk
             }
             else if (rotation == (float)Math.PI / 2 || rotation == 5 * (float)Math.PI / 2) //left
             {
+                tilesInRange.Add(new Point(currentTile.X + 1, currentTile.Y));
+                tilesInRange.Add(new Point(currentTile.X + 1, currentTile.Y + 1));
+                tilesInRange.Add(new Point(currentTile.X + 1, currentTile.Y - 1));
                 for (int i = (lookAcross * -1); i <= lookAcross; i++)
                 {
                     for (int j = 0; j <= lookAhead; j++)

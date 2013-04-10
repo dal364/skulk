@@ -16,6 +16,7 @@ namespace Skulk
         //Effec
        public static SoundEffect coinSound;
        public static SoundEffect fallSound;
+       public static SoundEffect weakScreamSound;
       
         
     }

@@ -21,7 +21,8 @@ namespace Skulk
         Menu,
         Game,
         Over,
-        Alert
+        Alert,
+        Credits
     }
 	/// <summary>
 	/// This is the main type for your game
@@ -49,6 +50,8 @@ namespace Skulk
         Texture2D minimap;
         Texture2D dot;
         Texture2D arrow;
+        float timer;
+        float waitTimer;
 
         //Levels
    
@@ -64,6 +67,8 @@ namespace Skulk
         GameState gameState;
 
         int bestScore = 9999999;
+
+        Credits credits;
        
 		public Game1 ()
 		{
@@ -87,6 +92,7 @@ namespace Skulk
 		/// </summary>
 		protected override void Initialize ()
 		{
+            timer = 0;
             this.IsMouseVisible = true;
 
             //TileMap
@@ -113,18 +119,23 @@ namespace Skulk
             sound.Alert = Content.Load<Song>("emergence");
             sound.coinSound = Content.Load<SoundEffect>("coinbag");
             sound.fallSound = Content.Load<SoundEffect>("fall");
+            sound.weakScreamSound = Content.Load<SoundEffect>("weakScream");
 
             SpriteFont font = Content.Load<SpriteFont>("SpriteFont1");
             blackTexture = new Texture2D(GraphicsDevice, 1, 1);
             blackTexture.SetData(new[] { Color.White });
+            credits = new Credits(this);
+            credits.initialize(font, blackTexture);
+          
           
 			Texture2D torchTexture = Content.Load<Texture2D> ("torch");
             gameOverFont = Content.Load<SpriteFont>("GameOver");
             Texture2D timerTexture = Content.Load<Texture2D>("hud");
             Texture2D viewTexture = Content.Load<Texture2D>("view");
             //Menu
+            arrow = Content.Load<Texture2D>("arrow");
             menu = new Menu(this);
-            menu.initialize(blackTexture, font, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            menu.initialize(blackTexture, arrow, font, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
            
 
             // +2 to compensate for tiles off screen
@@ -139,7 +150,7 @@ namespace Skulk
             drawnRectangles = new Rectangle[squaresAcross, squaresDown];
             dot = Content.Load<Texture2D>("whitedot");
             minimap = Content.Load<Texture2D>("minimap");
-            arrow = Content.Load<Texture2D>("arrow");
+            
 
             //Load guards
             loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1)  + "guards.csv");
@@ -190,11 +201,18 @@ namespace Skulk
 
             if (gameState == GameState.Menu)
             {
-                if (ks.IsKeyDown(Keys.Enter) || gs.Buttons.Start == ButtonState.Pressed)
+                if ((ks.IsKeyDown(Keys.Enter) || gs.Buttons.Start == ButtonState.Pressed) && menu.state == Menu.arrowKey.start)
                 {
+
                     gameState = GameState.Game;
-                    Pause.pauseKeyDown = true; 
+                    Pause.pauseKeyDown = true;
+
                 }
+                if ((ks.IsKeyDown(Keys.Enter) || gs.Buttons.Start == ButtonState.Pressed) && menu.state == Menu.arrowKey.credits)
+                {
+                    gameState = GameState.Credits;
+                }
+                menu.Update(gameTime);
             }
 
             
@@ -292,21 +310,32 @@ namespace Skulk
 
                     if (player.isDead())
                     {
+                        sound.weakScreamSound.Play();
                         gameOver = new GameOverScreen(this);
                         gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Sorry Tim.");
                         gameState = GameState.Over;
                     }
 
-                    if (gameState == GameState.Game)
-                    {
-                        if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong == sound.Alert)
-                            MediaPlayer.Play(sound.normalMusic);
-                    }
+                    
+                    timer += gameTime.ElapsedGameTime.Milliseconds;
                     if (gameState == GameState.Alert)
                     {
                         if (MediaPlayer.Queue.ActiveSong != sound.Alert)
+                        {
                             MediaPlayer.Play(sound.Alert);
+                            waitTimer = timer;
+                        }
                     }
+
+                    if (gameState == GameState.Game)
+                    {
+                        if (MediaPlayer.State != MediaState.Playing || (MediaPlayer.Queue.ActiveSong == sound.Alert && timer > waitTimer + 9000f))
+                        {
+                            waitTimer = 0;
+                            MediaPlayer.Play(sound.normalMusic);
+                        }
+                    }
+
 
                     if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y && currentLevel.currentMapIndex + 1 < currentLevel.winGoal)
                     {
@@ -349,6 +378,12 @@ namespace Skulk
                     this.Initialize();
 
                 }
+            }
+            if (gameState == GameState.Credits)
+            {
+                credits.Update(gameTime);
+                if (ks.IsKeyDown(Keys.Space) || gs.Buttons.Y == ButtonState.Pressed)
+                    gameState = GameState.Menu;
             }
 			// TODO: Add your update logic here		
 			base.Update (gameTime);
@@ -441,6 +476,12 @@ namespace Skulk
             {
                 menu.Draw(spriteBatch);
             }
+            if (gameState == GameState.Credits)
+            {
+
+                credits.Draw(spriteBatch);
+            }
+
 
             //Console.WriteLine(player.tileX);
 			spriteBatch.End ();
