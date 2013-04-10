@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="Credits.cs" />
     <Compile Include="GameOverScreen.cs" />
     <Compile Include="Gold.cs" />
     <Compile Include="hud.cs" />

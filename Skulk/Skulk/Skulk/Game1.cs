@@ -40,6 +40,7 @@ namespace Skulk
 		
         GameOverScreen gameOver;
         SpriteFont gameOverFont;
+        SpriteFont pauseFont;
         hud hud;
 
 		//Tile Map stuff
@@ -96,23 +97,28 @@ namespace Skulk
             this.IsMouseVisible = true;
 
             //TileMap
-            TileMap[] lvl1 = new TileMap[2];
+            TileMap[] lvl1 = new TileMap[3];
             lvl1[0] = new TileMap(1,1);
             lvl1[1] = new TileMap(1,2);
+            lvl1[2] = new TileMap(1, 3);
             //Level
-            Point[] goal = new Point[2];
-            goal[0].X = 25;
+            Point[] goal = new Point[3];
+            goal[0].X = 27;
             goal[0].Y = 4;
-            goal[1].X = 39;
+            goal[1].X = 25;
             goal[1].Y = 4;
-            Point[] starts = new Point[2];
-            starts[0].X = 11;
-            starts[0].Y = 21;
-            starts[1].X = 10;
-            starts[1].Y = 13;
-            currentLevel = new Level(lvl1 , goal, starts, 0,2);
+            goal[2].X = 40; 
+            goal[2].Y = 4;
+            Point[] starts = new Point[3];
+            starts[0].X = 19;
+            starts[0].Y = 30;
+            starts[1].X = 11;
+            starts[1].Y = 21;
+            starts[2].X = 10;
+            starts[2].Y = 13;
+            currentLevel = new Level(lvl1 , goal, starts, 0,3);
           
-
+            pauseFont = Content.Load<SpriteFont>("SpriteFont2");
             
             //Audio
             sound.normalMusic = Content.Load<Song>("hero");
@@ -258,13 +264,13 @@ namespace Skulk
                     {
                         gameState = GameState.Game;
                     }
-                     
 
-                    for (int i = 0; i < currentLevel.guards.ElementAt(currentLevel.currentMapIndex).Count; i++ )
+
+                    for (int i = 0; i < currentLevel.guards.ElementAt(currentLevel.currentMapIndex).Count; i++)
                     {
                         List<Npc> guardList = currentLevel.guards.ElementAt(currentLevel.currentMapIndex);
-
-                        if (guardList.ElementAt(i).isColliding(player))
+                        
+                        if (guardList.ElementAt(i).isColliding(player) && !ks.IsKeyDown(Keys.Tab))
                         {
                             gameOver = new GameOverScreen(this);
                             gameOver.initialize(blackTexture, gameOverFont, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, bestScore.ToString(), "Sorry Tim.");
@@ -288,7 +294,7 @@ namespace Skulk
                         }
                         else
                             currentLevel.guards.ElementAt(currentLevel.currentMapIndex).ElementAt(i).Update(player.whereOnTile, gameTime);
-                            
+
 
                     }
 
@@ -316,7 +322,7 @@ namespace Skulk
                         gameState = GameState.Over;
                     }
 
-                    
+
                     timer += gameTime.ElapsedGameTime.Milliseconds;
                     if (gameState == GameState.Alert)
                     {
@@ -346,11 +352,11 @@ namespace Skulk
                         int currNumGold = player.numGold;
                         player.initialize(start, 0, timTexture, currentLevel.start[currentLevel.currentMapIndex].X, currentLevel.start[currentLevel.currentMapIndex].Y, "Player", currentLevel.currentMap);
                         player.numGold = currNumGold;
-                      //  player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
+                        //  player.Location.X = currentLevel.start[currentLevel.currentMapIndex].X * tileSize - (6 * tileSize);
                         //player.Location.Y = currentLevel.start[currentLevel.currentMapIndex].Y * tileSize - (4 * tileSize);
 
                         loadGuards("lvl1map" + (currentLevel.currentMapIndex + 1) + "guards.csv");
- 
+
                     }
                     else if (player.tileX == currentLevel.currentGoal.X && player.tileY == currentLevel.currentGoal.Y && currentLevel.currentMapIndex + 1 == currentLevel.winGoal)
                     {
@@ -362,8 +368,9 @@ namespace Skulk
                         gameState = GameState.Over;
                     }
                     hud.Update(gameTime);
-                    
+
                 }
+                
             }
          
 
@@ -462,7 +469,7 @@ namespace Skulk
                     foreach (Npc guard in currentLevel.guards[currentLevel.currentMapIndex])
                     {
                         if (player.tileY - guard.currentTile.Y < 10 && guard.currentTile.Y - player.tileY < 10 && player.tileX - guard.currentTile.X < 12 && guard.currentTile.X - player.tileX < 12)
-                            spriteBatch.Draw(dot, new Rectangle((GraphicsDevice.Viewport.Width - 128 + guard.currentTile.X * 4 ) - ((int)player.Location.X/16 -32), (guard.currentTile.Y * 4) - ((int)player.Location.Y/16 - 32), 8, 8), Color.Red);
+                            spriteBatch.Draw(arrow, new Rectangle((GraphicsDevice.Viewport.Width - 128 + guard.currentTile.X * 4 ) - ((int)player.Location.X/16 -32), (guard.currentTile.Y * 4) - ((int)player.Location.Y/16 - 32), 8, 8),null, Color.Red, guard.rotation,origin,SpriteEffects.None,0);
                     }
             if(Math.Abs(player.nextTileX -currentLevel.currentGoal.X) < 10 && Math.Abs(player.nextTileY -currentLevel.currentGoal.Y) <10)
                 spriteBatch.Draw(dot, new Rectangle((GraphicsDevice.Viewport.Width - 128 + currentLevel.currentGoal.X * 4) - ((int)player.Location.X / 16 - 32), (currentLevel.currentGoal.Y * 4) - ((int)player.Location.Y / 16 - 32), 8, 8), Color.Yellow);
@@ -481,7 +488,20 @@ namespace Skulk
 
                 credits.Draw(spriteBatch);
             }
-
+            if (Pause.paused)
+            {
+                spriteBatch.DrawString(pauseFont, "Controls", new Vector2(315, 5), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "Move:", new Vector2(5, 50), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "Drop Gold:", new Vector2(5, 70), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "Pick up Gold:", new Vector2(5, 90), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "Sprint:", new Vector2(5, 110), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "(XBOX) LeftJoyStick - (PC) W/Mouse", new Vector2(200, 50), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "(XBOX) A - (PC) E", new Vector2(200, 70), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "(XBOX) B - (PC) Q", new Vector2(200, 90), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "(XBOX) Right Trigger - (PC) LShift", new Vector2(200, 110), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "HINTS: 1. Watch out for holes in the ground,\n       they are dangerous to you and guards!", new Vector2(5, 150), Color.Gold);
+                spriteBatch.DrawString(pauseFont, "       2. Use Gold to distract guards, you start with 3 bags,\n       others can be found in barrels and lying around!", new Vector2(5, 210), Color.Gold);
+            }
 
             //Console.WriteLine(player.tileX);
 			spriteBatch.End ();

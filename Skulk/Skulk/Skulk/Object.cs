@@ -16,7 +16,7 @@ namespace Skulk
         public Point currentTile;
 		protected TileMap map;
 
-        protected float rotation;
+        public float rotation;
 		protected int frameCount = 0; // Which frame we are.  Values = {0, 1, 2}
         protected int frameSkipY = 32; // How much to move the frame in X when we increment a frame--X distance between top left corners.
         protected int frameStartX = 0; // X of top left corner of frame 0. 

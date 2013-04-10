@@ -45,8 +45,8 @@ namespace Skulk
           
             
 
-            if (textures[1] != null)
-                     spriteBatch.Draw(textures[1], viewDestination, Color.White);
+            //if (textures[1] != null)
+                    // spriteBatch.Draw(textures[1], viewDestination, Color.White);
             if (textures[0] != null)
                 spriteBatch.Draw(textures[0], timerDestination, Color.White);
             
